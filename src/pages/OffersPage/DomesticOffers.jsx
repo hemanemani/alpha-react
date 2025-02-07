@@ -1,45 +1,82 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import axiosInstance from "../../services/axios";
+import { Block, Edit, ZoomOutMap } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const DomesticOffers = () => {
+  const navigate = useNavigate();
 
   const [rows, setRows] = useState([]);
 
+  const fetchOffersData = async()=>{
+    const token = localStorage.getItem('authToken');
+      if (!token) {
+      console.log("User is not authenticated.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get('/inquiry-approved-offers',{
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      }
+      );
+
+      if (response && response.data) {
+        // Preprocess data to include "addedBy" field
+        const processedData = response.data.map((item) => ({
+          ...item,
+          addedBy: item.user?.name || "Unknown",
+        }));
+        setRows(processedData);
+      }else {
+        console.error("Failed to fetch offers", response.status);
+      }
+
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+    }
+  };
+
   useEffect(()=>{
-    const fetchOffersData = async()=>{
-      const token = localStorage.getItem('authToken');
-        if (!token) {
+    fetchOffersData(); 
+  },[]);
+
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
         console.log("User is not authenticated.");
         return;
       }
+  
+      const response = await axiosInstance.patch(`/inquiries/${id}/update-inquiry-status`, 
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.success) {
+        console.log(response.data.message);
 
-      try {
-        const response = await axiosInstance.get('/inquiry-approved-offers',{
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        }
-        );
+        // Optimistically update the status in the table
+        await fetchOffersData(); 
 
-        if (response && response.data) {
-          // Preprocess data to include "addedBy" field
-          const processedData = response.data.map((item) => ({
-            ...item,
-            addedBy: item.user?.name || "Unknown",
-          }));
-          setRows(processedData);
-        }else {
-          console.error("Failed to fetch offers", response.status);
-        }
+    }
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
 
-      } catch (error) {
-        console.error("Error fetching offers:", error);
-      }
-    };
-    fetchOffersData(); 
-  },[]);
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/inquiries/domestic/edit-inquiry/${id}`);
+  };
+  
+  const handleMoveToInquiries = (id) => handleUpdateStatus(id, null);
+  const handleCancel = (id) => handleUpdateStatus(id, 0);
 
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 100 },
@@ -49,7 +86,24 @@ const DomesticOffers = () => {
     { field: "product_categories", headerName: "Product Categories", width: 150 },
     { field: "location", headerName: "location", width: 200 },
     { field: "addedBy", headerName: "Added By", width: 150 },
-    { field: "status", headerName: "Status", width: 150 },
+    {
+      field: "actionButtons",
+      headerName: "Action",
+      width: 150,
+      renderCell: (params) => (
+        <Grid container spacing={1}>
+          <Grid item>
+            <Edit onClick={() => handleEdit(params.row.id)} style={{ cursor: "pointer" }} />
+          </Grid>
+          <Grid item>
+            <ZoomOutMap onClick={() => handleMoveToInquiries(params.row.id)} style={{ cursor: "pointer" }} />
+          </Grid>
+          <Grid item>
+            <Block onClick={() => handleCancel(params.row.id)} style={{ cursor: "pointer" }} />
+          </Grid>
+        </Grid>
+      ),
+    },
   ];
 
   return (
@@ -84,8 +138,7 @@ const DomesticOffers = () => {
               mobile_number: true,
               product_categories: true,
               location: true,
-              addedBy: true,
-              status: true,
+              addedBy: true
             },
           },
         }}

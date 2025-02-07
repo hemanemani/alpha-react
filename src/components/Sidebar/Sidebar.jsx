@@ -254,7 +254,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       <Box p={2} sx={{ position: "absolute", bottom: 0, width: "100%" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
-            <ListItemText primary={user.name} secondary={user.email} />
+            <ListItemText primary={user.name} secondary={user.user_name} />
           </Box>
         
         </Box>

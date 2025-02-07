@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const LoginPage = () => {
-  const [name,setName] = useState('');
+  const [user_name,setUserName] = useState('');
   const [password,setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate(); // Get the navigate function for redirection
@@ -25,7 +25,7 @@ const LoginPage = () => {
     try {
       await getCsrfToken();
   
-      const credentials = { name, password };
+      const credentials = { user_name, password };
   
       const response = await authLogin(credentials);
   
@@ -80,9 +80,9 @@ const LoginPage = () => {
               label="Username"
               placeholder="Please enter username"
               variant="outlined"
-              value={name}
-              onChange={(item)=>setName(item.target.value)}
-              autoComplete="name" 
+              value={user_name}
+              onChange={(item)=>setUserName(item.target.value)}
+              autoComplete="Username" 
               fullWidth
             />
             <TextField

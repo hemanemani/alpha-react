@@ -1,12 +1,47 @@
 import { Grid, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/axios";
-
+import DomesticUploadData from "./DomesticUploadData";
 
 const BulkUploadDomestic = () => {
     const [uploading, setUploading] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [rows, setRows] = useState([]);
+    const [filteredRows, setFilteredRows] = useState([]);
+    const [errorMessages,setErrorMessages] = useState([]);
 
+    const fetchInquiryData = async () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.log("User is not authenticated.");
+          return;
+        }
+    
+        try {
+          const response = await axiosInstance.get("/bulk-domestic-data", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          if (response && response.data) {
+            const processedData = response.data.map((item) => ({
+              ...item,
+              uploaded_by: item.user?.name || 'Unknown'
+            }));
+            setRows(processedData);
+            setFilteredRows(processedData);
+          } else {
+            console.error("Failed to fetch inquiries", response.status);
+          }
+        } catch (error) {
+          console.error("Error fetching inquiries:", error);
+        }
+      };
+      useEffect(() => {
+        fetchInquiryData();
+      }, []);
+      
     
     const handleFileUpload = async (file) => {
         if (!file) return;
@@ -21,7 +56,7 @@ const BulkUploadDomestic = () => {
         formData.append("file", file);
         setUploading(true); 
         setSuccessMessage(""); 
-
+        setErrorMessages([]);
         try {
             const response = await axiosInstance.post('/inquiries/bulk-upload',formData,  {
                 headers: {
@@ -30,16 +65,18 @@ const BulkUploadDomestic = () => {
                 }
             });
             if (response.status === 200) {
-                setSuccessMessage("Upload successful!");
+                setSuccessMessage(response.data.status); 
+                await fetchInquiryData(); 
             } else {
-                console.error("Failed to upload file", response.status);
+                setSuccessMessage("Upload failed.");
             }
 
         } catch (error) {
             console.error("Error uploading file:", error);
-            if (error.response && error.response.data) {
-                console.error("Validation errors:", error.response.data);
-            }
+            setSuccessMessage("Upload failed.");
+            if (error.response && error.response.data.errors) {
+                setErrorMessages(error.response.data.errors);
+            }    
         } finally {
             setUploading(false);
         }
@@ -62,6 +99,7 @@ const BulkUploadDomestic = () => {
 
     
     return(
+        <>
         <form>
             <Grid container spacing={3} style={{justifyContent:"center",marginTop:"15px"}}>
                 <Grid 
@@ -97,10 +135,25 @@ const BulkUploadDomestic = () => {
                     />
                 </Grid>
             </Grid>
+            {errorMessages.length > 0 && (
+                <div className="error-container">
+                    <h4>Validation Errors:</h4>
+                    <ul>
+                        {errorMessages.map((error, index) => (
+                            <li key={index}>
+                                Row {error.row}: {error.errors.join(", ")}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {uploading && <Typography variant="body2" sx={{textAlign:"center"}}>Uploading...</Typography>}
             {successMessage && <Typography color="success" sx={{textAlign:"center"}}>{successMessage}</Typography>}
-
+            
         </form>
+        <DomesticUploadData rows={rows} setRows={setRows} filteredRows={filteredRows} setFilteredRows={setFilteredRows} />
+        </>
     )
 }
 

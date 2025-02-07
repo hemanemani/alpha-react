@@ -10,6 +10,7 @@ const InternationalInquiries = () => {
 
   const navigate = useNavigate()
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
 
   useEffect(()=>{
     const fetchInternationalInquiryData = async()=>{
@@ -45,6 +46,34 @@ const InternationalInquiries = () => {
     fetchInternationalInquiryData(); 
   },[]);
 
+  const handleDownload = async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      console.log("User is not authenticated.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get('/international-template-download', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Important for downloading files
+      });
+
+      // Create a link element to simulate the download action
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(response.data);
+      link.download = 'international_inquiry_template.xlsx'; // Specify the default filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading the file:", error);
+    }
+  };
+
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 100 },
     { field: "inquiry_date", headerName: "Inq. Date", width: 200 },
@@ -78,8 +107,34 @@ const InternationalInquiries = () => {
     navigate(`/inquiries/international/edit-international-inquiry/${id}`)
   }
 
-  const handleDelete = (id)=>{
-    console.log(id)
+  const handleDelete = async(id)=>{
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+        console.log("User is not authenticated.");
+        return;
+    }
+
+    try {
+        const response = await axiosInstance.delete(`/international_inquiries/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            console.log("Item deleted successfully.");
+
+            setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+            setFilteredRows((prevFilteredRows) =>
+                prevFilteredRows.filter((row) => row.id !== id)
+            );
+        } else {
+            console.error("Failed to delete item:", response.status);
+        }
+    } catch (error) {
+        console.error("Error deleting item:", error);
+    }
   }
 
   return (
@@ -99,6 +154,15 @@ const InternationalInquiries = () => {
                 Bulk Upload
             </Button>
           </Link>
+            <Button
+              size="small"
+              variant="outlined"
+              sx={{ borderRadius: "8px", px: 1 }}
+              onClick={handleDownload}
+            >
+              Export
+            </Button>
+          
         </div>
       </div>
       <DataGrid
