@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Grid, Card, CardContent, Typography, Divider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import axiosInstance from "../../services/axios";
+
 
 const SummaryCard = ({ title, value, trend, domestic, international, isPositive }) => (
+
   <Card sx={{ borderRadius: 3, boxShadow: 2, minHeight: 180, padding: 3 }}>
     <CardContent>
       {/* Title and Value on the same line, Trend below */}
@@ -56,32 +59,62 @@ const InquiryGrowthCard = ({ data }) => (
         Inquiry Growth
       </Typography>
       <Divider sx={{ my: 2 }} />
-      {data.map((item, index) => (
-        <Grid container spacing={2} key={index}>
-          <Grid item xs={6} sm={6}>
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              {item.city}
-            </Typography>
-          </Grid>
-          <Grid item xs={6} sm={6}>
-            <Typography variant="body2">{item.value}</Typography>
-          </Grid>
-        </Grid>
-      ))}
+
+      {data.length > 0 ? (
+        <ul>
+          {data.map((location, index) => (
+            <li key={index}>
+              {location.location}: {location.count}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No data available</p>
+      )}
+
+
     </CardContent>
   </Card>
 );
 
+
 const HomePage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const handleDateChange = (date) => setSelectedDate(date);
+  const [dashBoardData, setdashBoardData] = useState(
+    {
+      topLocations: [],
+    }
+  );
 
-  const inquiryGrowthData = [
-    { city: "Ahmedabad", value: 31 },
-    { city: "Mumbai", value: 10 },
-    { city: "Surat", value: 8 },
-    { city: "Rajkot", value: 5 },
-  ];
+  const fetchDashboardData = async()=>{
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.log("User is not authenticated.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get("/refresh", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response && response.data) {
+        console.log(response.data.data)
+        setdashBoardData(response.data.data)
+      } else {
+        console.error("Failed to fetch inquiries", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+    }
+  }
+
+  useEffect(() => {
+      fetchDashboardData();
+    }, []);
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -90,23 +123,29 @@ const HomePage = () => {
         <Grid item xs={12} sm={12} lg={8} md={8}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} lg={6} md={6}>
-              <SummaryCard
+            <SummaryCard
                 title="Inquiries"
-                value="1K"
-                trend="+120"
-                domestic="600"
-                international="400"
+                value={ 
+                  (dashBoardData?.inquiry?.count || 0) + (dashBoardData?.interInquiry?.count || 0)
+                }
+                trend={dashBoardData?.inquiry?.dateRanges?.yesterday || 0}
+                domestic={dashBoardData?.inquiry?.count || 0}
+                international={dashBoardData?.interInquiry?.count || 0}
                 isPositive={true}
               />
+
+
             </Grid>
             <Grid item xs={12} sm={12} lg={6} md={6}>
               <SummaryCard
                 title="Offers"
-                value="300"
-                trend="-10"
-                domestic="150"
-                international="150"
-                isPositive={false}
+                value={ 
+                  (dashBoardData?.inquiry?.offers || 0) + (dashBoardData?.interInquiry?.offers || 0)
+                }
+                trend={dashBoardData?.inquiry?.offerDateRanges?.yesterday || 0}
+                domestic={dashBoardData?.inquiry?.offers || 0}
+                international={dashBoardData?.interInquiry?.offers || 0}
+                isPositive={true}
               />
             </Grid>
             <Grid item xs={12} sm={12} lg={6} md={6}>
@@ -122,11 +161,13 @@ const HomePage = () => {
             <Grid item xs={12} sm={12} lg={6} md={6}>
               <SummaryCard
                 title="Canceled Inquiries"
-                value="20"
-                trend="-3"
-                domestic="15"
-                international="5"
-                isPositive={false}
+                value={ 
+                  (dashBoardData?.inquiry?.cancellations || 0) + (dashBoardData?.interInquiry?.cancellations || 0)
+                }
+                trend={dashBoardData?.inquiry?.cancelDateRanges?.yesterday || 0}
+                domestic={dashBoardData?.inquiry?.cancellations || 0}
+                international={dashBoardData?.interInquiry?.cancellations || 0}
+                isPositive={true}
               />
             </Grid>
           </Grid>
@@ -149,7 +190,7 @@ const HomePage = () => {
               </Card>
             </Grid>
             <Grid item xs={12}>
-              <InquiryGrowthCard data={inquiryGrowthData} />
+              <InquiryGrowthCard data={dashBoardData?.topLocations} />
             </Grid>
           </Grid>
         </Grid>
