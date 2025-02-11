@@ -1,78 +1,89 @@
 import React, { useEffect, useState } from "react";
-import { Box, Grid, Card, CardContent, Typography, Divider } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableRow, IconButton} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import axiosInstance from "../../services/axios";
+import { Autorenew } from "@mui/icons-material";
 
 
 const SummaryCard = ({ title, value, trend, domestic, international, isPositive }) => (
-
-  <Card sx={{ borderRadius: 3, boxShadow: 2, minHeight: 180, padding: 3 }}>
-    <CardContent>
-      {/* Title and Value on the same line, Trend below */}
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-          <Typography variant="h6" fontWeight="bold">
-            {title}
-          </Typography>
-          <Typography variant="h4" fontWeight="bold">
-            {value}
+    <Card sx={{ borderRadius: 6, boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", border:"1px solid #ccc5c5", minHeight: 180, padding: 2 }}>
+      <CardContent>
+        {/* Title and Value on the same line, Trend below */}
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "end" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+            <Typography variant="h6" sx={{color: "#7f7f7f",fontSize:"22px",fontWeight:"500"}}>
+              {title}
+            </Typography>
+            <Typography variant="h4" fontWeight="bold">
+              {value}
+            </Typography>
+          </Box>
+          <Typography
+            variant="body2"
+            color={isPositive ? "#71ad47" : "red"}
+            sx={{ display: "flex", alignItems: "center", mt: 0.5,mr:1.3 }}
+          >
+            {isPositive ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+            {trend}
           </Typography>
         </Box>
-        <Typography
-          variant="body2"
-          color={isPositive ? "green" : "red"}
-          sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
-        >
-          {isPositive ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
-          {trend}
-        </Typography>
-      </Box>
-      <Divider sx={{ my: 2 }} />
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-            Domestic
-          </Typography>
-          <Typography variant="body2">{domestic}</Typography>
+        <Grid container mt={2}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+            <div>
+            <Typography variant="body2" sx={{color: "#7f7f7f",fontSize:"16px"}}>
+              Domestic
+            </Typography>                                     
+            <Typography variant="body2" sx={{textAlign:"center",fontSize:"16px",fontWeight:"600"}} mt={1}>{domestic}</Typography>
+            </div>
+            <div>
+            <Typography variant="body2" sx={{color: "#7f7f7f",fontSize:"16px"}}>
+              International
+            </Typography>                                  
+            <Typography variant="body2" sx={{textAlign:"center",fontSize:"16px",fontWeight:"600"}} mt={1}>{international}</Typography>
+            </div>
+            
+          </Box>
         </Grid>
-        <Grid item xs={6}>
-          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-            International
-          </Typography>
-          <Typography variant="body2">{international}</Typography>
-        </Grid>
-      </Grid>
-    </CardContent>
-  </Card>
+      </CardContent>
+    </Card>
 );
 
 
 
 const InquiryGrowthCard = ({ data }) => (
-  <Card sx={{ borderRadius: 2, boxShadow: 3, minHeight: 150, padding: 2 }}>
+  <Card sx={{ borderRadius: 6, boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", border:"1px solid #ccc5c5", minHeight: 180, padding: 2 }}>
     <CardContent>
-      <Typography variant="h6" fontWeight="bold">
-        Inquiry Growth
-      </Typography>
-      <Divider sx={{ my: 2 }} />
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+        <Typography variant="h6" sx={{color: "#7f7f7f",fontSize:"22px",fontWeight:"500",mb:2}}>
+          Inquiry Growth
+        </Typography>
+        <Typography variant="h6" sx={{color: "#7f7f7f",fontSize:"12px",fontWeight:"500",mb:2,background:"#ececec",padding: "0px 10px",border:"1px solid #dddddd"}}>
+          All Time
+        </Typography>
+      </Box>
 
       {data.length > 0 ? (
-        <ul>
-          {data.map((location, index) => (
-            <li key={index}>
-              {location.location}: {location.count}
-            </li>
-          ))}
-        </ul>
+        <TableContainer>
+          <Table>
+            <TableBody>
+              {data.map((location, index) => (
+                <TableRow key={index}>
+                  <TableCell sx={{border:0,padding:"10px 0px",fontSize:"16px",fontWeight:"500"}}>{location.location}</TableCell>
+                  <TableCell sx={{border:0,padding:"5px",fontSize:"16px",fontWeight:"500",textAlign:"center"}}>{location.count}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       ) : (
-        <p>No data available</p>
+        <Typography variant="body1" color="textSecondary">
+          No data available
+        </Typography>
       )}
-
-
     </CardContent>
   </Card>
 );
@@ -102,7 +113,6 @@ const HomePage = () => {
       });
 
       if (response && response.data) {
-        console.log(response.data.data)
         setdashBoardData(response.data.data)
       } else {
         console.error("Failed to fetch inquiries", response.status);
@@ -115,10 +125,16 @@ const HomePage = () => {
   useEffect(() => {
       fetchDashboardData();
     }, []);
+  
 
   return (
     <Box sx={{ padding: 4 }}>
       <Grid container spacing={3} sx={{ width: "100%" }}>
+        <Grid item xs={12} sx={{display:"flex",alignItems:"center",justifyContent:"end"}}>
+            <Autorenew sx={{fontSize:"15px",marginRight:"3px"}} />
+            <Typography sx={{fontSize:"12px",marginRight:"6px",fontWeight:"bold"}}>Refresh All</Typography>
+        </Grid>
+
         {/* First Row: Inquiries, Offers */}
         <Grid item xs={12} sm={12} lg={8} md={8}>
           <Grid container spacing={2}>
@@ -132,7 +148,7 @@ const HomePage = () => {
                 domestic={dashBoardData?.inquiry?.count || 0}
                 international={dashBoardData?.interInquiry?.count || 0}
                 isPositive={true}
-              />
+                />
 
 
             </Grid>
@@ -177,13 +193,20 @@ const HomePage = () => {
         <Grid item xs={12} sm={12} lg={4} md={4}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                <CardContent sx={{ display: "flex", justifyContent: "center" }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Card sx={{ borderRadius: 6, boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", border:"1px solid #ccc5c5", minHeight: 180}}>
+
+                <CardContent sx={{ display: "flex", justifyContent: "center",padding:0 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs} sx={{paddingBottom:0}}>
                     <DateCalendar
                       selected={selectedDate}
                       onChange={handleDateChange}
                       style={{ display: "inline" }}
+                      sx={{
+                        "& .MuiTypography-root": { fontSize: "1rem",color:"#8c849e" }, // Increase font size of text
+                        "& .MuiPickersDay-root": { fontSize: "1rem" }, // Increase font size of days
+                        "& .MuiPickersToolbar-root": { fontSize: "1rem" }, // Increase header font size
+                      }}
+                      className="card-calender"
                     />
                   </LocalizationProvider>
                 </CardContent>

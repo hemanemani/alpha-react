@@ -29,6 +29,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link, useLocation } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import { Block, Description, NewReleasesTwoTone,Person } from "@mui/icons-material";
 
 const drawerWidth = 240;
 
@@ -36,9 +37,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
   const [openMenu, setOpenMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
- 
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
 
   const location = useLocation();
+  const hoverRoutes = ["/inquiries/domestic", "/inquiries/international"];
+  const isHoverEnabled = hoverRoutes.includes(location.pathname);
+
 
   const handleMenuToggle = (menuKey) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -74,10 +80,11 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       <React.Fragment>
         <ListItem disablePadding>
           <ListItemButton onClick={() => handleMenuToggle(menuKey)}>
-            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemIcon sx={{color:'#817f81'}}>{icon}</ListItemIcon>
             <ListItemText 
               sx={{ 
                 fontSize: '0.8rem', 
+                color:'#817f81',
                 fontWeight: location.pathname === '/' + menuKey ? 'bold' : 'normal'
               }} 
               primary={label} 
@@ -101,7 +108,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
                 <ListItemIcon>
                   <SubdirectoryArrowRightIcon />
                 </ListItemIcon>
-                <ListItemText sx={{ fontSize: '0.75rem' }} primary={label} />
+                <ListItemText sx={{ fontSize: '0.75rem',color:'#817f81'}} primary={label} />
               </ListItemButton>
             ))}
           </List>
@@ -116,16 +123,12 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       icon: <HomeIcon />,
       label: "Home",
       to: "/",
-    },
-    {
-      key: "analytics",
-      icon: <AnalyticsIcon />,
-      label: "Analytics",
-      submenu: [{ label: "Sub-Analytics", to: "/analytics" }],
+      submenu: [{ label: "Analytics", to: "/analytics" }],
+
     },
     {
       key: "inquiries",
-      icon: <InfoIcon />,
+      icon: <Description />,
       label: "Inquiries",
       submenu: [
         { label: "Domestic", to: "/inquiries/domestic" },
@@ -134,7 +137,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
     },
     {
       key: "offers",
-      icon: <LocalOfferIcon />,
+      icon: <NewReleasesTwoTone/>,
       label: "Offers",
       submenu: [
         { label: "Domestic", to: "/offers/domestic" },
@@ -143,7 +146,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
     },
     {
       key: "cancellations",
-      icon: <LocalOfferIcon />,
+      icon: <Block />,
       label: "Cancellations",
       submenu: [
         { label: "Domestic", to: "/cancellations/domestic" },
@@ -168,13 +171,16 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
   );
 
   const drawerContent = (
-    <Box>
+    <Box sx={{ width: isHoverEnabled ? (hovered ? 240 : 60) : 240 }}>
+
       <Toolbar>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Alpha
+        <Typography variant="h4" sx={{ fontWeight: "bold"}} mb={4} mt={2}>
+        <Link to="/" style={{ color: "#000", textDecoration: "none" }}>
+          { hovered ?  'Alpha' : ''}
+        </Link>
         </Typography>
       </Toolbar>
-      
+      { hovered ?
       <Box p={2}>
         <TextField
           fullWidth
@@ -187,45 +193,48 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
             disableUnderline: true,
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ color: "grey.500" }} />
+                <SearchIcon sx={{ color: "#a3a2a2",marginLeft:"6px",fontSize:"22px" }} />
               </InputAdornment>
             ),
             sx: {
               display: "flex",
               alignItems: "center",
-              height: "32px",
+              height: "35px",
+              backgroundColor:"#fff"
             },
           }}
           sx={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "#fff",
+            borderRadius:"7px",
             "& .MuiInputBase-root": {
-              height: "32px",
+              height: "35px",
               lineHeight: "32px",
               display: "flex",
               alignItems: "center",
             },
             "& .MuiInputBase-input": {
-              fontSize: "0.93rem",
+              fontSize: "14px",
             },
             "& .MuiInputBase-input::placeholder": {
-              color: "grey.500",
+              color: "#84888f"
             },
+            color:"#94948f",
           }}
         />
-      </Box>
-
+      </Box> : '' }
+      { hovered ?
       <Box p={2} pb={0}>
         <Typography
           variant="h6"
           sx={{
-            fontWeight: "bold",
+            fontWeight: "500",
             fontSize: "0.8rem",
-            color: "grey.500",
+            color: "#8e8081",
           }}
         >
           Menu
         </Typography>
-      </Box>
+      </Box> : ''}
 
       <Box sx={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
         <List>
@@ -239,7 +248,8 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
                       to={item.to}
                       sx={{
                         fontWeight: location.pathname === item.to ? 'bold' : 'normal',
-                        backgroundColor: location.pathname === item.to ? "#f0f0f0" : "transparent",
+                        backgroundColor: location.pathname === item.to ? "#fff" : "transparent",
+                        color:location.pathname === item.to ? '#000' : '#817f81',
                       }}
                     >
                       <ListItemIcon>{item.icon}</ListItemIcon>
@@ -250,15 +260,13 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
           )}
         </List>
       </Box>
-
-      <Box p={2} sx={{ position: "absolute", bottom: 0, width: "100%" }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box>
-            <ListItemText primary={user.name} secondary={user.user_name} />
-          </Box>
-        
+      { hovered ?
+      <Box p={2} sx={{ position: "fixed", bottom: 0, width: "100%" }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+          <Person />
+          <ListItemText primary={user.name} secondary= {`@${user.user_name}`} />
         </Box>
-      </Box>
+      </Box> : ''}
     </Box>
   );
 
@@ -268,7 +276,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       sx={{
         width: { sm: drawerWidth },
         flexShrink: { sm: 0 },
-        backgroundColor: "#f5f5f3",
+        backgroundColor: "transparent",
       }}
       aria-label="sidebar"
     >
@@ -294,11 +302,17 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
         sx={{
           display: { xs: "none", sm: "block" },
           "& .MuiDrawer-paper": {
-            backgroundColor: "#f5f5f3",
+            backgroundColor: "transparent",
+            transition: "width 0.3s ease",
+            width: isHoverEnabled ? (hovered ? 240 : 60) : 240,
+            overflowX: "hidden",
           },
         }}
         open
+        onMouseEnter={() => isHoverEnabled && setHovered(true)}
+        onMouseLeave={() => isHoverEnabled && setHovered(false)}
       >
+
         {drawerContent}
       </Drawer>
     </Box>

@@ -10,7 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { AccountCircle } from "@mui/icons-material";
+import { Person } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import axiosInstance from "../../services/axios";
 import { useNavigate } from 'react-router-dom';
@@ -23,14 +23,53 @@ const TopBar = ({ handleDrawerToggle,user }) => {
 
   const pageTitles = {
     "/": (
-      <Box sx={{ p: 1 }}>
-        <span style={{ color: "#7f7f7f", fontWeight: "bold" }}>Hello</span>{" "}
-        <span style={{ fontWeight: "bold", color: "black" }}>{user.name}</span>
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#7f7f7f",fontSize:"22px" }}>Hello</span>{" "}
+        <span style={{ color: "#000",fontSize:"22px" }}>{user.name}</span>
+        {location.pathname === "/" && (
+          <Typography
+              variant="body1"
+              sx={{
+                fontSize: "14px",
+                color: "#7f7f7f",
+                fontFamily:"Inter Light",
+                marginTop:"5px"
+              }}
+            >
+              Welcome to Alpha, your one-stop admin solutions
+            </Typography>
+        )}
+
       </Box>
     ),
-    "/analytics": "Analytics",
-    "/inquiries/domestic": "Domestic Inquiries",
-    "/inquiries/international": "International Inquiries",
+    "/analytics": (
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Analytics</span>
+        {location.pathname === "/analytics" && (
+          <Typography
+              variant="body1"
+              sx={{
+                fontSize: "14px",
+                color: "#7f7f7f",
+                fontFamily:"Inter Light",
+                marginTop:"5px"
+              }}
+            >
+              Monitor every activity of performance
+            </Typography>
+        )}
+      </Box>
+    ),
+    "/inquiries/domestic": (
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All Domestic Inquiries</span>
+      </Box>
+    ),
+    "/inquiries/international": (
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All International Inquiries</span>
+      </Box>
+    ),
     "/offers": "Offers",
     "/users": "Users",
   };
@@ -82,12 +121,13 @@ const TopBar = ({ handleDrawerToggle,user }) => {
 
   return (
     <AppBar
-      position="fixed"
+      position="absolute"
       sx={{
         width: { sm: `calc(100% - 240px)` },
         ml: { sm: `240px` },
-        backgroundColor: "white",
-        // Set toolbar background to white
+        backgroundColor: "transparent",
+        boxShadow:"none",
+        mt:1
       }}
     >
       <Toolbar sx={{ color: "black" }}>
@@ -113,45 +153,16 @@ const TopBar = ({ handleDrawerToggle,user }) => {
             {currentPage}
           </Typography>
 
-          {/* Show Welcome Message on Home Page Only */}
-          {location.pathname === "/" && (
-            <Typography
-              variant="body1"
-              sx={{
-                display: "block",
-                marginTop: "4px",
-                fontSize: "0.8rem",
-                color: "grey.600",
-              }}
-            >
-              Welcome to Alpha, your one-stop admin solutions
-            </Typography>
-          )}
 
-          {/* Show "Monitor every activity of performance" on Analytics Page */}
-          {location.pathname === "/analytics" && (
-            <Typography
-              variant="body1"
-              sx={{
-                display: "block",
-                marginTop: "4px",
-                fontSize: "0.8rem",
-                color: "grey.600",
-              }}
-            >
-              Monitor every activity of performance
-            </Typography>
-          )}
         </div>
 
         {/* User Profile Menu */}
         <IconButton
-          color="inherit"
           onClick={handleMenuOpen}
-          sx={{ display: "flex", alignItems: "center", ml: "auto" }}
+          sx={{ ml: "auto" }}
         >
-          <Avatar sx={{ bgcolor: "#fff", color:"#000" }}>
-            <AccountCircle />
+          <Avatar sx={{ bgcolor: "#f5f5f3", color:"#000" }}>
+            <Person />
           </Avatar>
         </IconButton>
         <Menu
@@ -162,13 +173,7 @@ const TopBar = ({ handleDrawerToggle,user }) => {
             "aria-labelledby": "user-menu",
           }}
         >
-          <MenuItem onClick={handleProfile} sx={{ fontWeight: "bold" }}>
-            Profile
-          </MenuItem>
-          <MenuItem onClick={handleChangePassword} sx={{ fontWeight: "bold" }}>
-            Change Password
-          </MenuItem>
-          <MenuItem onClick={handleLogout} sx={{ fontWeight: "bold" }}>
+          <MenuItem onClick={handleLogout}>
             Logout
           </MenuItem>
         </Menu>

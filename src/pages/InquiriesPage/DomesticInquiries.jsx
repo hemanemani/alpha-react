@@ -4,7 +4,7 @@ import { Box, Button, Grid, Typography, TextField, InputAdornment } from "@mui/m
 import SearchIcon from "@mui/icons-material/Search";
 import axiosInstance from "../../services/axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Block, Edit, ZoomOutMap } from "@mui/icons-material";
+import { Block, Edit, IosShare, ZoomOutMap } from "@mui/icons-material";
 
 
 const DomesticInquiries = () => {
@@ -12,7 +12,6 @@ const DomesticInquiries = () => {
   const [rows, setRows] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
-  const [density, setDensity] = useState(localStorage.getItem("dataGridDensity") || "standard");
 
   const fetchInquiryData = async () => {
     const token = localStorage.getItem("authToken");
@@ -86,11 +85,6 @@ const DomesticInquiries = () => {
       }
     };
 
-  const handleDensityChange = (newDensity) => {
-    setDensity(newDensity);
-    localStorage.setItem("dataGridDensity", newDensity);
-  };
-
   // handle update status
 
   const handleUpdateStatus = async (id, status) => {
@@ -158,36 +152,36 @@ const DomesticInquiries = () => {
   
 
   return (
-    <Box sx={{ height: 500, width: "100%", p: 2 }}>
+    <Box sx={{ height: 500, width: "100%", p: 2}}>
       {/* HEADER */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-      <Typography gutterBottom sx={{ fontSize: '12px', fontWeight: 'bold', textDecoration: 'underline' }}>
+      <Typography gutterBottom sx={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
           View Analytics
       </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Link to="/inquiries/domestic/new-inquiry">
-            <Button size="small" variant="contained" sx={{ bgcolor: "black", color: "white", borderRadius: "8px", px: 1 }}>
+            <Button variant="contained" sx={{ bgcolor: "black", color: "white", borderRadius: "8px",fontSize:"13px",padding:"5px 12px",textTransform:"capitalize" }}>
               + Add New Inquiry
             </Button>
           </Link>
           <Link to="/inquiries/domestic/upload">
-            <Button size="small" variant="outlined" sx={{ borderRadius: "8px", px: 1 }}>
+            <Button size="small" variant="outlined" sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", padding:"5px 12px",fontSize:"13px",textTransform:"capitalize",border:"1px solid #d9d9d9" }}>
               + Bulk Upload
             </Button>
           </Link>
           <Button
             size="small"
             variant="outlined"
-            sx={{ borderRadius: "8px", px: 1 }}
+            sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", fontSize:"13px",textTransform:"capitalize",border:"1px solid #d9d9d9",padding:"5px 12px" }}
             onClick={handleDownload}
           >
-            Export
+            <IosShare sx={{fontSize:"13px",marginRight:"5px"}} />Export
           </Button>
         </Box>
       </Box>
 
       {/* SEARCH BAR */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2,mt:4,mr:"10%" }}>
         <TextField
           variant="outlined"
           size="small"
@@ -197,11 +191,15 @@ const DomesticInquiries = () => {
           sx={{
             width: "250px",
             bgcolor: "white",
-            borderRadius: "8px",
-            boxShadow: "0px 1px 3px rgba(0,0,0,0.1)",
           }}
           InputProps={{
-            startAdornment: (
+            sx:{
+              borderRadius: "8px",
+              fontSize:"13px",
+              border:"1px solid #d9d9d9",
+              paddingRight:"0"
+            },
+            endAdornment: (
               <InputAdornment position="start">
                 <SearchIcon />
               </InputAdornment>
@@ -211,46 +209,61 @@ const DomesticInquiries = () => {
       </Box>
 
       {/* DATA GRID */}
-      <DataGrid
-  slots={{ toolbar: GridToolbar }}
-  rows={filteredRows}
-  columns={columns}
-  pageSizeOptions={[5, 10, 20, 50]} // Add multiple options for rows per page
-  pagination
-  checkboxSelection
-  disableSelectionOnClick
-  density={density} 
-  onDensityChange={handleDensityChange}
-  components={{
-    Toolbar: GridToolbar,
-  }}
-  componentsProps={{
-    toolbar: {
-      showQuickFilter: true,
-      quickFilterProps: { debounceMs: 500 },
-    },
-    pagination: {
-      labelRowsPerPage: "Rows per page:", // Explicitly show the label
-    },
-  }}
-  initialState={{
-    pagination: {
-      paginationModel: { pageSize: 5 },
-    },
-    columns: {
-      columnVisibilityModel: {
-        inquiry_number: true,
-        inquiry_date: true,
-        name: true,
-        mobile_number: true,
-        product_categories: false,
-        location: false,
-        addedBy: false,
-      },
-    },
-  }}
-/>
-
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5, 10, 20]}
+              // checkboxSelection
+              disableSelectionOnClick
+              components={{
+                Toolbar: GridToolbar,
+              }}
+              componentsProps={{
+                toolbar: {
+                  showQuickFilter: true, // Adds the quick search bar
+                  quickFilterProps: { debounceMs: 500 },
+                },
+              }}
+              initialState={{
+                columns: {
+                  columnVisibilityModel: {
+                    // Define default visibility of columns
+                    id: true,
+                    inquiry_number: true,
+                    inquiry_date: true,
+                    name: true,
+                    mobile_number: true,
+                    product_categories: true,
+                    location: true,
+                    addedBy: true,
+                    status: true,
+                  },
+                },
+                
+              }}
+              sx={{
+                mt:4,
+                "& .MuiDataGrid-columnHeaders": {
+                  color: "#827f7f",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                },
+                "& .MuiDataGrid-columnSeparator": {
+                  display: "none",
+                },
+                "& .MuiDataGrid-row": {
+                  color: "#000",
+                  fontSize:"15px",
+                  fontWeight:"500"
+                },
+                "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']": {
+                  backgroundColor: "transparent !important",
+                }            
+            
+              }}
+            
+            />
     </Box>
   );
 };

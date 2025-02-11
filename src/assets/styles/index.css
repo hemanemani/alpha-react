@@ -1,0 +1,31 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Inter Light';
+  src: url('../fonts/Inter-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 100;
+}
+.card-calender{
+  height: 290px !important;
+}
+.card-calender > .MuiPickersCalendarHeader-root.css-1nxbkmn-MuiPickersCalendarHeader-root > .MuiPickersCalendarHeader-labelContainer.css-zqc28c-MuiPickersCalendarHeader-labelContainer > .MuiPickersFadeTransitionGroup-root.css-1etsrfk-MuiPickersFadeTransitionGroup-root > .css-1chuxo2-MuiPickersCalendarHeader-label {
+  font-size: 22px;
+  font-weight: 600;
+}
+.css-1chbkpe-MuiButtonBase-root-MuiPickersDay-root:not(.Mui-selected) {
+  color: #fff;
+  background: #000;
+}
+.css-1wd3yy0-MuiInputBase-input-MuiInput-input{
+  padding: 0 !important;
+}
