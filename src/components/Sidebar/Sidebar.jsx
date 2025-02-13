@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   List,
@@ -31,6 +31,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import { Block, Description, NewReleasesTwoTone,Person } from "@mui/icons-material";
 
+
+
 const drawerWidth = 240;
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
@@ -38,13 +40,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(true);
 
 
   const location = useLocation();
   const hoverRoutes = ["/inquiries/domestic", "/inquiries/international"];
   const isHoverEnabled = hoverRoutes.includes(location.pathname);
 
+  
 
   const handleMenuToggle = (menuKey) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));

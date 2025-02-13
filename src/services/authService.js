@@ -20,9 +20,15 @@ export const authLogin = async (credentials) => {
         },
       });
       if (response.data.access_token && response.data.user && response.data.status === "Login successful") {
-        localStorage.setItem("authToken", response.data.access_token);
+        const userStatus = response.data.user.status;
+        if (userStatus == 1) {
+          localStorage.setItem("authToken", response.data.access_token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
   
-        return response.data;
+          return response.data;
+        } else {
+          throw new Error("User is not authorized to login");
+        }
       } else {
         throw new Error("Invalid response structure");
       }

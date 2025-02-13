@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -20,6 +20,7 @@ const TopBar = ({ handleDrawerToggle,user }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
+  const [userCount, setUserCount] = useState(0);
 
   const pageTitles = {
     "/": (
@@ -65,6 +66,11 @@ const TopBar = ({ handleDrawerToggle,user }) => {
         <span style={{ color: "#000",fontSize:"22px" }}>All Domestic Inquiries</span>
       </Box>
     ),
+    "/inquiries/domestic/new-inquiry":(
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Add New Domestic Inquiry</span>
+      </Box>
+    ),
     "/inquiries/international": (
       <Box sx={{ p: 1, marginLeft:"20px" }}>
         <span style={{ color: "#000",fontSize:"22px" }}>All International Inquiries</span>
@@ -72,9 +78,43 @@ const TopBar = ({ handleDrawerToggle,user }) => {
     ),
     "/offers": "Offers",
     "/users": "Users",
+    "/users": (
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Users Management</span>
+        {location.pathname === "/users" && (
+          <Typography
+              variant="body1"
+              sx={{
+                fontSize: "28px",
+                color: "#000",
+                marginTop:"5px",
+                fontWeight:"700",
+                textAlign:"center"
+              }}
+            >
+            {userCount}
+        </Typography>
+        )}
+      </Box>
+    ),
+    "/add-new-users": (
+      <Box sx={{ p: 1, marginLeft:"20px" }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Add New Users</span>
+      </Box>
+    ),
   };
+  
+  const pathname = location.pathname;
 
-  const currentPage = pageTitles[location.pathname] || "Dashboard";
+  let currentPage = pageTitles[pathname] || "Dashboard";
+
+  if (pathname.startsWith("/edit-user/")) {
+    currentPage = (
+      <Box sx={{ p: 1, marginLeft: "20px" }}>
+        <span style={{ color: "#000", fontSize: "22px" }}>Edit User</span>
+      </Box>
+    );
+  }
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -118,6 +158,35 @@ const TopBar = ({ handleDrawerToggle,user }) => {
 
     }
   }
+
+  useEffect(()=>{
+    const fetchUsersData = async()=>{
+      const token = localStorage.getItem('authToken');
+        if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+
+      try {
+        const response = await axiosInstance.get('/users',{
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+        );
+
+        if(response){
+          setUserCount(response.data.length); 
+        }else {
+          console.error("Failed to fetch users", response.status);
+        }
+
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsersData(); 
+  },[]);
 
   return (
     <AppBar

@@ -29,3 +29,6 @@ body {
 .css-1wd3yy0-MuiInputBase-input-MuiInput-input{
   padding: 0 !important;
 }
+.css-9qdq80-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track {
+  opacity: 1 !important;
+}
