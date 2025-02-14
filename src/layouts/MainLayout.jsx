@@ -2,10 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Box, CssBaseline, Toolbar } from "@mui/material";
 import Sidebar from "../components/Sidebar/Sidebar";
 import TopBar from "../components/AppBar/TopBar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const MainLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hovered, setHovered] = useState(true);
+
+
+  const location = useLocation();
+  const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations"];
+  const isHoverEnabled = hoverRoutes.includes(location.pathname);
+  const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -35,9 +43,9 @@ const MainLayout = () => {
     >
       <CssBaseline />
       {/* TopBar */}
-      <TopBar handleDrawerToggle={handleDrawerToggle} user={user} />
+      <TopBar handleDrawerToggle={handleDrawerToggle} user={user} drawerWidth={drawerWidth} />
       {/* Sidebar */}
-      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} user={user} />
+      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} user={user} drawerWidth={drawerWidth} isHoverEnabled={isHoverEnabled} hovered={hovered} setHovered={setHovered} />
       {/* Main Content */}
       <Box
         component="main"

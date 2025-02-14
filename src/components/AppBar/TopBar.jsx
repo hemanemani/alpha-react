@@ -16,7 +16,7 @@ import axiosInstance from "../../services/axios";
 import { useNavigate } from 'react-router-dom';
 
 
-const TopBar = ({ handleDrawerToggle,user }) => {
+const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
@@ -24,7 +24,7 @@ const TopBar = ({ handleDrawerToggle,user }) => {
 
   const pageTitles = {
     "/": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#7f7f7f",fontSize:"22px" }}>Hello</span>{" "}
         <span style={{ color: "#000",fontSize:"22px" }}>{user.name}</span>
         {location.pathname === "/" && (
@@ -44,7 +44,7 @@ const TopBar = ({ handleDrawerToggle,user }) => {
       </Box>
     ),
     "/analytics": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>Analytics</span>
         {location.pathname === "/analytics" && (
           <Typography
@@ -62,24 +62,34 @@ const TopBar = ({ handleDrawerToggle,user }) => {
       </Box>
     ),
     "/inquiries/domestic": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>All Domestic Inquiries</span>
       </Box>
     ),
     "/inquiries/domestic/new-inquiry":(
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>Add New Domestic Inquiry</span>
       </Box>
     ),
     "/inquiries/international": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>All International Inquiries</span>
+      </Box>
+    ),
+    "/inquiries/international/new-international-inquiry":(
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Add New International Inquiry</span>
+      </Box>
+    ),
+    "/cancellations": (
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All Cancelled Inquiries</span>
       </Box>
     ),
     "/offers": "Offers",
     "/users": "Users",
     "/users": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>Users Management</span>
         {location.pathname === "/users" && (
           <Typography
@@ -98,7 +108,7 @@ const TopBar = ({ handleDrawerToggle,user }) => {
       </Box>
     ),
     "/add-new-users": (
-      <Box sx={{ p: 1, marginLeft:"20px" }}>
+      <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>Add New Users</span>
       </Box>
     ),
@@ -112,6 +122,22 @@ const TopBar = ({ handleDrawerToggle,user }) => {
     currentPage = (
       <Box sx={{ p: 1, marginLeft: "20px" }}>
         <span style={{ color: "#000", fontSize: "22px" }}>Edit User</span>
+      </Box>
+    );
+  }
+
+  if (pathname.startsWith("/inquiries/domestic/edit-inquiry/")) {
+    currentPage = (
+      <Box sx={{ p: 1, marginLeft: "20px" }}>
+        <span style={{ color: "#000", fontSize: "22px" }}>Edit Inquiry</span>
+      </Box>
+    );
+  }
+
+  if (pathname.startsWith("/inquiries/international/edit-international-inquiry/")) {
+    currentPage = (
+      <Box sx={{ p: 1, marginLeft: "20px" }}>
+        <span style={{ color: "#000", fontSize: "22px" }}>Edit International Inquiry</span>
       </Box>
     );
   }
@@ -192,12 +218,14 @@ const TopBar = ({ handleDrawerToggle,user }) => {
     <AppBar
       position="absolute"
       sx={{
-        width: { sm: `calc(100% - 240px)` },
-        ml: { sm: `240px` },
+        width: `calc(100% - ${drawerWidth}px)`, // Adjust based on sidebar width
+        transition: "width 0.3s ease",
+        ml: `${drawerWidth}px`, // Push the top bar when sidebar expands
         backgroundColor: "transparent",
         boxShadow:"none",
         mt:1
       }}
+    
     >
       <Toolbar sx={{ color: "black" }}>
         {/* Hamburger Menu Icon for Desktop */}

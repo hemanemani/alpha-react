@@ -1,7 +1,8 @@
-import { Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/axios";
 import DomesticUploadData from "./DomesticUploadData";
+import { IosShare } from "@mui/icons-material";
 
 const BulkUploadDomestic = () => {
     const [uploading, setUploading] = useState(false);
@@ -97,11 +98,48 @@ const BulkUploadDomestic = () => {
         }
     };
 
+    const handleDownload = async () => {
+        const token = localStorage.getItem("authToken");
+    
+        if (!token) {
+          console.log("User is not authenticated.");
+          return;
+        }
+    
+        try {
+          const response = await axiosInstance.get('/domestic-template-download', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            responseType: 'blob', // Important for downloading files
+          });
+    
+          // Create a link element to simulate the download action
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(response.data);
+          link.download = 'domestic-template.xlsx'; // Specify the default filename
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (error) {
+          console.error("Error downloading the file:", error);
+        }
+      };
+
     
     return(
         <>
+         <Button
+            size="small"
+            variant="outlined"
+            sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", fontSize:"13px",textTransform:"capitalize",border:"1px solid #d9d9d9",padding:"5px 12px" }}
+            onClick={handleDownload}
+          >
+            <IosShare sx={{fontSize:"13px",marginRight:"5px"}} />Export
+          </Button>
         <form>
             <Grid container spacing={3} style={{justifyContent:"center",marginTop:"15px"}}>
+           
                 <Grid 
                     item 
                     xs={12} 
@@ -118,6 +156,7 @@ const BulkUploadDomestic = () => {
                     <Typography variant="body1">
                         Drag & drop file here, or click to select
                     </Typography>
+                    
                     <input
                         type="file"
                         onChange={handleChange}

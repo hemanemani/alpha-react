@@ -1,8 +1,9 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import { Button, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/axios";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { Block, ZoomOutMap } from "@mui/icons-material";
 
 const InquiryForm = () => {
     const navigate = useNavigate();
@@ -23,7 +24,8 @@ const InquiryForm = () => {
         third_contact_date: '',
         third_response: '',
         notes: '',
-        user_id: ''
+        user_id: '',
+        status:''
     })
     const [user, setUser] = useState(null);
 
@@ -584,11 +586,61 @@ const InquiryForm = () => {
                 />
                 </Grid>
 
+                <Grid item xs={12} sm={6}>
+                <Typography sx={{fontWeight:"600",marginBottom:1}}>
+                    Status
+                </Typography>
+                <TextField
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        select
+                        fullWidth
+                        margin="normal"
+                        SelectProps={{
+                            displayEmpty: true,
+                            MenuProps: {
+                              PaperProps: {
+                                sx: {
+                                  boxShadow: "none",
+                                  border: "1px solid #d6d6d6",
+                                  borderRadius:"15px"
+                                },
+                              },
+                            },
+                          }}
+                        
+                        sx={{
+                            marginTop:0,
+                            color:"#000",
+                                                     
+                            "& .MuiOutlinedInput-root": {
+                                background: "#fff",
+                              height: "40px",width:"75%",
+                              borderRadius: "8px",
+                              "& fieldset": {
+                                borderColor: "#d6d6d6",
+                              },
+                            },
+                            "& .MuiInputBase-input": {
+                              padding: "10px",
+                              fontSize: "13px",
+                              color: "#181717",
+                            },
+                        }}
+                    >
+                    <MenuItem value="" sx={{ fontSize: "14px", fontWeight: "500",borderBottom:"1px solid #d9d9d9" }}>Select Status</MenuItem>
+
+                    <MenuItem value="1" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9"}}><ZoomOutMap sx={{fontSize:"14px",marginRight:"5px"}} /> Move to Offers</MenuItem>
+                    <MenuItem value="0" sx={{fontSize:"14px",fontWeight:"500"}}><Block sx={{fontSize:"14px",marginRight:"5px"}} />Cancel</MenuItem>
+                 </TextField>
+                 </Grid>
+
                 {/* User ID */}
                 <Grid item xs={12}>
                     <input type="hidden" name="user_id" value={user?.id || ''} />
                 </Grid>
-                <Button variant="contained" type="submit" sx={{width:"30%",background:"#000",color:"#fff",textTransform:"capitalize",fontSize:"17px",height:"43px",borderRadius:"6px",display:"block",marginLeft:"auto",marginRight:"auto"}}>
+                <Button variant="contained" type="submit" sx={{width:"30%",background:"#000",color:"#fff",textTransform:"capitalize",fontSize:"17px",height:"43px",borderRadius:"6px",display:"block",marginLeft:"auto",marginRight:"auto",marginTop:"100px"}}>
                     Add inquiry
                 </Button>
             </Grid>

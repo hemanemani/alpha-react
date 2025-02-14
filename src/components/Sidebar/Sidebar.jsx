@@ -33,21 +33,21 @@ import { Block, Description, NewReleasesTwoTone,Person } from "@mui/icons-materi
 
 
 
-const drawerWidth = 240;
 
-const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
+const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnabled,hovered,setHovered }) => {
   const [openMenu, setOpenMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [hovered, setHovered] = useState(true);
+  // const [hovered, setHovered] = useState(true);
 
 
   const location = useLocation();
-  const hoverRoutes = ["/inquiries/domestic", "/inquiries/international"];
-  const isHoverEnabled = hoverRoutes.includes(location.pathname);
+  // const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations"];
+  // const isHoverEnabled = hoverRoutes.includes(location.pathname);
 
   
+  // const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
 
   const handleMenuToggle = (menuKey) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -136,6 +136,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       submenu: [
         { label: "Domestic", to: "/inquiries/domestic" },
         { label: "International", to: "/inquiries/international" },
+        { label: "Cancellations", to: "/cancellations" },
       ],
     },
     {
@@ -145,15 +146,6 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
       submenu: [
         { label: "Domestic", to: "/offers/domestic" },
         { label: "International", to: "/offers/international" },
-      ],
-    },
-    {
-      key: "cancellations",
-      icon: <Block />,
-      label: "Cancellations",
-      submenu: [
-        { label: "Domestic", to: "/cancellations/domestic" },
-        { label: "International", to: "/cancellations/international" },
       ],
     },
     {
@@ -239,7 +231,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user }) => {
         </Typography>
       </Box> : ''}
 
-      <Box sx={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
+      <Box sx={{ maxHeight: "calc(100vh - 200px)" }}>
         <List>
           {filteredMenuItems.map((item) =>
             item.submenu

@@ -22,6 +22,7 @@ import BulkUploadDomestic from "./pages/InquiriesPage/BulkUploadDomestic";
 import BulkUploadInternational from "./pages/InquiriesPage/BulkUploadInternational";
 import Unauthorized from "./pages/Unauthorized";
 import { AuthProvider } from "./services/AuthContext";
+import CancellationTab from "./pages/CancelledPage/Cancellations";
 
 
 function App() {
@@ -89,6 +90,11 @@ function App() {
               <Route path="offers/international" element={
                   <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="offers/international">
                     <InternationalOffers />
+                  </ProtectedRoute>
+              } />
+              <Route path="cancellations" element={
+                  <ProtectedRoute allowedAccess={["full"]} selectedPage="cancellations">
+                    <CancellationTab />
                   </ProtectedRoute>
               } />
               <Route path="cancellations/domestic" element={

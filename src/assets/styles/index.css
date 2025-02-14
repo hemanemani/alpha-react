@@ -32,3 +32,9 @@ body {
 .css-9qdq80-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track {
   opacity: 1 !important;
 }
+
+.css-1hr2sou-MuiTablePagination-root:last-child{
+display: flex;
+justify-content: start;
+color:#817f89;
+}
