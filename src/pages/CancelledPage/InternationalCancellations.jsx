@@ -13,8 +13,19 @@ const InternationalCancellations = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
+  const [selectedRowId, setSelectedRowId] = useState(null);
   
-  
+  const handleMenuOpen = (event,id) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRowId(id);
+
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRowId(null);
+
+  };
+
   useEffect(() => {
     const filteredData = rows.filter((row) =>
       Object.values(row).some(
@@ -26,12 +37,6 @@ const InternationalCancellations = () => {
     setFilteredRows(filteredData);
   }, [searchText, rows]);
   
-    const handleMenuOpen = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-    const handleMenuClose = () => {
-      setAnchorEl(null);
-    };
 
   const fetchInternationalcancellationData = async()=>{
     const token = localStorage.getItem('authToken');
@@ -118,14 +123,14 @@ const InternationalCancellations = () => {
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={handleMenuOpen}>
+            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
+              open={Boolean(anchorEl)&& selectedRowId === params.row.id}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -139,7 +144,7 @@ const InternationalCancellations = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry

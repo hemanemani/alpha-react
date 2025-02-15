@@ -10,7 +10,7 @@ const MainLayout = () => {
 
 
   const location = useLocation();
-  const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations"];
+  const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations","/offers/domestic","/offers/international"];
   const isHoverEnabled = hoverRoutes.includes(location.pathname);
   const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
 

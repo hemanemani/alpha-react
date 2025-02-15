@@ -1,14 +1,13 @@
-import { Button, Grid, MenuItem, TextField,Typography } from "@mui/material";
+import { Button, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/axios";
 import moment from "moment";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Block, ZoomOutMap } from "@mui/icons-material";
 
-const EditInquiryForm = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [user, setUser] = useState(null);
+
+const InternationalInquiryForm = () => {
+    const navigate = useNavigate()
     const [formData,setFormData] = useState({
         inquiry_number: '',
         mobile_number: '',
@@ -28,8 +27,8 @@ const EditInquiryForm = () => {
         notes: '',
         user_id: '',
         status:''
-
     })
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -38,45 +37,21 @@ const EditInquiryForm = () => {
         }
     }, []);
 
-    useEffect(() => {
-        if (id) {
-            const token = localStorage.getItem("authToken");
-            if (!token) {
-                console.log("No token found in localStorage");
-                return;
-              }
-            const fetchItem = async () => {
-                try {
-                    const response = await axiosInstance.get(`inquiries/${id}`,{
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        }
-                    });
-                    setFormData(response.data.inquiry);
-                } catch (error) {
-                    console.error('Error fetching item:', error);
-                }
-            };
-            fetchItem();
-        }
-    }, [id]);
-
     const handleChange = (e)=>{
         setFormData({
             ...formData,
             [e.target.name] : e.target.value
         })
     }
-
-    
-    
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formattedInquiryDate = moment(formData.inquiry_date, 'YYYY-MM-DD').format('DD-MM-YYYY');
         const formattedFirstDate = moment(formData.first_contact_date, 'YYYY-MM-DD').format('DD-MM-YYYY');
-        const formattedSecondDate = formData.second_contact_date ? moment(formData.second_contact_date, 'YYYY-MM-DD').format('DD-MM-YYYY'): '';
-        const formattedThirdDate = formData.third_contact_date ? moment(formData.third_contact_date, 'YYYY-MM-DD').format('DD-MM-YYYY'): '';
+        const formattedSecondDate = moment(formData.second_contact_date, 'YYYY-MM-DD').format('DD-MM-YYYY');
+        const formattedThirdDate = moment(formData.third_contact_date, 'YYYY-MM-DD').format('DD-MM-YYYY');
+
+
+
         const token = localStorage.getItem('authToken');
 
         if (!token || !user) {
@@ -84,31 +59,25 @@ const EditInquiryForm = () => {
             return;
         }
         try {
-            const url = id ? `inquiries/${id}` : 'inquiries';  // Determine the URL for PUT or POST
-            const method = id ? 'put' : 'post';  // Use PUT if id exists, otherwise POST
-                
-                const response = await axiosInstance({
-                    method: method,
-                    url: url,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    data: {
-                        ...formData,
-                        inquiry_date: formattedInquiryDate,
-                        first_contact_date: formattedFirstDate,
-                        second_contact_date: formattedSecondDate,
-                        third_contact_date : formattedThirdDate,
-                        user_id: user.id
-                    }
-                });
-                if (response) {
-                    navigate('/inquiries/domestic')
-                } else {
-                    console.error(`${id ? "Failed to edit" : "Failed to add"} inquiry`, response.status);
-                }  
+            const response = await axiosInstance.post('/international_inquiries', {
+                ...formData,
+                inquiry_date: formattedInquiryDate,
+                first_contact_date: formattedFirstDate,
+                second_contact_date: formattedSecondDate,
+                third_contact_date : formattedThirdDate,
+                user_id: user.id
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            if (response) {
+                navigate('/inquiries/international')
+            } else {
+                console.error("Failed to add International Inquiry", response.status);
+            }
         } catch (error) {
-            console.error("Error submitting inquiry:", error);
+            console.error("Error submitting international inquiry:", error);
             if (error.response && error.response.data) {
                 console.error("Validation errors:", error.response.data);
             }
@@ -118,245 +87,6 @@ const EditInquiryForm = () => {
     return(
         <form onSubmit={handleSubmit}>
             <Grid container spacing="30px"  sx={{padding:"50px",width:"auto",marginLeft:0}}>
-
-            {formData.status ? 
-                <>
-                <Grid item xs={12} sm={12}>
-                <Typography variant="h6" fontWeight="500">
-                    Add Offers
-                </Typography> 
-                </Grid>
-                    
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Offer Number
-                    </Typography>
-                    <TextField
-                    fullWidth
-                    name="offer_number"
-                    value={formData.offer_number || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    placeholder="Please enter offer number"
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-
-                    />
-                </Grid>
-
-
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Communication Date
-                    </Typography>
-
-                    <TextField
-                    fullWidth
-                    type="date"
-                    name="communication_date"
-                    value={formData.communication_date || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    InputLabelProps={{
-                    shrink: true,
-                    }}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Received Sample Amount (in Rs.)
-                    </Typography>
-                    <TextField
-                    fullWidth
-                    name="received_sample_amount"
-                    value={formData.received_sample_amount || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    placeholder="Please enter sample amount"
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-
-                    />
-                </Grid>
-
-
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Sample Dispatched Date
-                    </Typography>
-
-                    <TextField
-                    fullWidth
-                    type="date"
-                    name="sample_dispatched_date"
-                    value={formData.sample_dispatched_date || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    InputLabelProps={{
-                    shrink: true,
-                    }}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Sample Sent through
-                    </Typography>
-                    <TextField
-                    fullWidth
-                    name="sample_sent_through"
-                    value={formData.sample_sent_through || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    placeholder="Please enter sample sent through"
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-
-                    />
-                </Grid>
-
-
-                <Grid item xs={12} sm={6}>
-                    <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                        Sample Received Date
-                    </Typography>
-
-                    <TextField
-                    fullWidth
-                    type="date"
-                    name="sample_received_date"
-                    value={formData.sample_received_date || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    InputLabelProps={{
-                    shrink: true,
-                    }}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        height: "40px",width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-                    />
-                </Grid>
-
-                {/* Notes */}
-                <Grid item xs={12}>
-                <Typography sx={{fontWeight:"600",marginBottom:1}}>
-                    Offer Notes
-                </Typography>
-                <TextField
-                    fullWidth
-                    name="offer_notes"
-                    value={formData.offer_notes || ''}
-                    onChange={handleChange}
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                        width:"75%",
-                        borderRadius: "8px",
-                        background: "#fff",
-                        "& fieldset": {
-                            borderColor: "#d6d6d6",
-                        },
-                        },
-                        "& .MuiInputBase-input": {
-                        padding: "10px",
-                        fontSize: "13px",
-                        color: "#181717",
-                        },
-                    }}
-                />
-                </Grid>
-
-                </>
-                
-                : '' }
-
-
-
-
                 {/* Inquiry Number */}
                 <Grid item xs={12} sm={6}>
                 <Typography sx={{fontWeight:"600",marginBottom:1}}>
@@ -863,7 +593,7 @@ const EditInquiryForm = () => {
                 </Typography>
                 <TextField
                         name="status"
-                        value={formData.status ?? ""}
+                        value={formData.status}
                         onChange={handleChange}
                         select
                         fullWidth
@@ -900,10 +630,10 @@ const EditInquiryForm = () => {
                             },
                         }}
                     >
-                    <MenuItem value="" sx={{ fontSize: "14px", fontWeight: "500",borderBottom:"1px solid #d9d9d9"  }}>Select Status</MenuItem>
+                    <MenuItem value="" sx={{ fontSize: "14px", fontWeight: "500",borderBottom:"1px solid #d9d9d9" }}>Select Status</MenuItem>
 
-                    <MenuItem value="1" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9" }}><ZoomOutMap sx={{fontSize:"14px",marginRight:"5px"}} /> Move to Offers</MenuItem>
-                    <MenuItem value="0" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9" }}><Block sx={{fontSize:"14px",marginRight:"5px"}} />Cancel</MenuItem>
+                    <MenuItem value="1" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9"}}><ZoomOutMap sx={{fontSize:"14px",marginRight:"5px"}} /> Move to Offers</MenuItem>
+                    <MenuItem value="0" sx={{fontSize:"14px",fontWeight:"500"}}><Block sx={{fontSize:"14px",marginRight:"5px"}} />Cancel</MenuItem>
                  </TextField>
                  </Grid>
 
@@ -911,13 +641,12 @@ const EditInquiryForm = () => {
                 <Grid item xs={12}>
                     <input type="hidden" name="user_id" value={user?.id || ''} />
                 </Grid>
-
                 <Button variant="contained" type="submit" sx={{width:"30%",background:"#000",color:"#fff",textTransform:"capitalize",fontSize:"17px",height:"43px",borderRadius:"6px",display:"block",marginLeft:"auto",marginRight:"auto",marginTop:"100px"}}>
-                    Update
+                    Add inquiry
                 </Button>
             </Grid>
         </form>
     )
 }
 
-export default EditInquiryForm;
+export default InternationalInquiryForm;

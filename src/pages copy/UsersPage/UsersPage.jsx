@@ -13,16 +13,13 @@ const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [toggleStates, setToggleStates] = useState({});
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRowId, setSelectedRowId] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
   
-  const handleMenuOpen = (event,id) => {
+  const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-    setSelectedRowId(id);
   };
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedRowId(null);
   };
   useEffect(()=>{
     const fetchUsersData = async()=>{
@@ -136,14 +133,14 @@ const UsersPage = () => {
     { field: "actionButtons", headerName: "", width: 150, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
+            <IconButton onClick={handleMenuOpen}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl) && selectedRowId === params.row.id}
+              open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -173,12 +170,12 @@ const UsersPage = () => {
                   }
                 />
               </MenuItem> */}
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Profile
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleDelete(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleDelete(params.row.id)} 
               >
                 <Block 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}

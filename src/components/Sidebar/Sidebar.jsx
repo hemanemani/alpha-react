@@ -39,15 +39,9 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnable
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  // const [hovered, setHovered] = useState(true);
 
 
   const location = useLocation();
-  // const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations"];
-  // const isHoverEnabled = hoverRoutes.includes(location.pathname);
-
-  
-  // const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
 
   const handleMenuToggle = (menuKey) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));

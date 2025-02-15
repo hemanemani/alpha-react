@@ -1,30 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Grid, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment } from "@mui/material";
+import { Box, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment,Grid } from "@mui/material";
 import axiosInstance from "../../services/axios";
-import { useNavigate } from "react-router-dom";
 import { Block, Edit,MoreHoriz,IosShare } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
 
 
-const DomesticCancellations = () => {
+const InternationalCancellations = () => {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
-  const [selectedRowId, setSelectedRowId] = useState(null);
   
-  const handleMenuOpen = (event,id) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRowId(id);
-
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedRowId(null);
-
-  };
+  
   useEffect(() => {
     const filteredData = rows.filter((row) =>
       Object.values(row).some(
@@ -35,10 +25,15 @@ const DomesticCancellations = () => {
     );
     setFilteredRows(filteredData);
   }, [searchText, rows]);
+  
+    const handleMenuOpen = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
 
- 
-
-  const fetchCancellationData = async()=>{
+  const fetchInternationalcancellationData = async()=>{
     const token = localStorage.getItem('authToken');
       if (!token) {
       console.log("User is not authenticated.");
@@ -46,11 +41,12 @@ const DomesticCancellations = () => {
     }
 
     try {
-      const response = await axiosInstance.get('/inquiry-cancellation-offers',{
+      const response = await axiosInstance.get('/inquiry-cancellation-international-offers',{
         headers: {
           'Authorization': `Bearer ${token}`,
         }
-      });
+      }
+      );
 
       if (response && response.data) {
         // Preprocess data to include "addedBy" field
@@ -60,46 +56,20 @@ const DomesticCancellations = () => {
         }));
         setRows(processedData);
       }else {
-        console.error("Failed to fetch cancellations", response.status);
+        console.error("Failed to fetch international cancellations", response.status);
       }
 
     } catch (error) {
-      console.error("Error fetching cancellations:", error);
+      console.error("Error fetching international cancellations:", error);
     }
   };
 
   useEffect(()=>{
-    fetchCancellationData(); 
+    fetchInternationalcancellationData(); 
   },[]);
 
   const handleEdit = (id) => {
-    navigate(`/inquiries/domestic/edit-inquiry/${id}`);
-  };
-  
-  const handleBlockInquiry = async(id,mobile_number) => {
-    try {
-      const token = localStorage.getItem("authToken");
-  
-      if (!token) {
-        console.log("User is not authenticated.");
-        return;
-      }
-  
-      const response = await axiosInstance.post(`/block-inquiry/${id}`, { mobile_number },
-        { headers: 
-          { Authorization: `Bearer ${token}` }
-        }
-      );
-      console.log(response)
-      if (response.data.success) {
-        setRows(prevRows => prevRows.filter(row => row.id !== id));
-        console.log('Blocked successfully')
-    }
-
-    } catch (error) {
-        alert(error.response?.data?.error || "Duplicate Entry");
-    }
-
+    navigate(`/inquiries/international/edit-inquiry/${id}`);
   };
 
   const columns = [
@@ -148,14 +118,14 @@ const DomesticCancellations = () => {
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
+            <IconButton onClick={handleMenuOpen}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)&& selectedRowId === params.row.id}
+              open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -169,16 +139,10 @@ const DomesticCancellations = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
-              </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleBlockInquiry(selectedRowId)} 
-              >
-                <Block 
-                    style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
-                />Block
               </MenuItem>
             </Menu>
           </Grid>
@@ -294,4 +258,4 @@ const DomesticCancellations = () => {
   );
 };
 
-export default DomesticCancellations;
+export default InternationalCancellations;

@@ -7,72 +7,68 @@ import { Link, useNavigate } from "react-router-dom";
 import { Block, Edit, IosShare, MoreHoriz, ZoomOutMap } from "@mui/icons-material";
 
 
-const DomesticInquiries = () => {
-  const navigate = useNavigate();
+const InternationalInquiries = () => {
+
+  const navigate = useNavigate()
   const [rows, setRows] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [filteredRows, setFilteredRows] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRowId, setSelectedRowId] = useState(null);
-
-
-  const handleMenuOpen = (event,id) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRowId(id);
-
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedRowId(null);
-
-  };
+   const [searchText, setSearchText] = useState("");
+    const [filteredRows, setFilteredRows] = useState([]);
+    const [anchorEl, setAnchorEl] = useState(null);
   
+    const handleMenuOpen = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
 
-  const fetchInquiryData = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
+  const fetchInternationalInquiryData = async()=>{
+    const token = localStorage.getItem('authToken');
+      if (!token) {
       console.log("User is not authenticated.");
       return;
     }
 
     try {
-      const response = await axiosInstance.get("/inquiries", {
+      const response = await axiosInstance.get('/international_inquiries',{
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+          'Authorization': `Bearer ${token}`,
+        }
+      }
+      );
 
       if (response && response.data) {
+        // Preprocess data to include "addedBy" field
         const processedData = response.data.map((item) => ({
           ...item,
           addedBy: item.user?.name || "Unknown",
         }));
         setRows(processedData);
-        setFilteredRows(processedData);
-      } else {
-        console.error("Failed to fetch inquiries", response.status);
+      }else {
+        console.error("Failed to fetch international inquiries", response.status);
       }
+
     } catch (error) {
-      console.error("Error fetching inquiries:", error);
+      console.error("Error fetching international inquiries:", error);
     }
   };
 
-  useEffect(() => {
-    fetchInquiryData();
-  }, []);
-
-  useEffect(() => {
-    const filteredData = rows.filter((row) =>
-      Object.values(row).some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-    setFilteredRows(filteredData);
-  }, [searchText, rows]);
+  useEffect(()=>{
+    fetchInternationalInquiryData(); 
+  },[]);
 
  
+
+  useEffect(() => {
+      const filteredData = rows.filter((row) =>
+        Object.values(row).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchText.toLowerCase())
+        )
+      );
+      setFilteredRows(filteredData);
+    }, [searchText, rows]);
 
   // handle update status
 
@@ -85,14 +81,14 @@ const DomesticInquiries = () => {
         return;
       }
   
-      const response = await axiosInstance.patch(`/inquiries/${id}/update-inquiry-status`, 
+      const response = await axiosInstance.patch(`/international-inquiries/${id}/update-international-inquiry-status`, 
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
         console.log(response.data.message);
 
-        await fetchInquiryData(); 
+        await fetchInternationalInquiryData(); 
 
     }
     } catch (error) {
@@ -103,7 +99,7 @@ const DomesticInquiries = () => {
   
   const handleOffers = (id) => handleUpdateStatus(id, 1);
   const handleCancel = (id) => handleUpdateStatus(id, 0);
-  
+
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 70,renderHeader: () => (
       <span>
@@ -150,14 +146,14 @@ const DomesticInquiries = () => {
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
+            <IconButton onClick={handleMenuOpen}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)&& selectedRowId === params.row.id}
+              open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -171,18 +167,18 @@ const DomesticInquiries = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleOffers(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleOffers(params.row.id)} 
               >
                 <ZoomOutMap 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 />Move to Offers
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(params.row.id)} 
               >
                 <Block 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
@@ -194,12 +190,39 @@ const DomesticInquiries = () => {
     },
   ];
 
-  const handleEdit = (id) => {
-    console.log(id)
+  const handleEdit = (id)=>{
+    navigate(`/inquiries/international/edit-international-inquiry/${id}`)
+  }
 
-    navigate(`/inquiries/domestic/edit-inquiry/${id}`);
-  };
-  
+  const handleDelete = async(id)=>{
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+        console.log("User is not authenticated.");
+        return;
+    }
+
+    try {
+        const response = await axiosInstance.delete(`/international_inquiries/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            console.log("Item deleted successfully.");
+
+            setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+            setFilteredRows((prevFilteredRows) =>
+                prevFilteredRows.filter((row) => row.id !== id)
+            );
+        } else {
+            console.error("Failed to delete item:", response.status);
+        }
+    } catch (error) {
+        console.error("Error deleting item:", error);
+    }
+  }
 
   return (
     <Box sx={{ height: 500, width: "100%", p: 2}}>
@@ -209,12 +232,12 @@ const DomesticInquiries = () => {
           View Analytics
       </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Link to="/inquiries/domestic/new-inquiry">
+          <Link to="/inquiries/international/new-international-inquiry">
             <Button variant="contained" sx={{ bgcolor: "black", color: "white", borderRadius: "8px",fontSize:"13px",padding:"5px 12px",textTransform:"capitalize" }}>
               + Add New Inquiry
             </Button>
           </Link>
-          <Link to="/inquiries/domestic/upload">
+          <Link to="/inquiries/international/upload">
             <Button size="small" variant="outlined" sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", padding:"5px 12px",fontSize:"13px",textTransform:"capitalize",border:"1px solid #d9d9d9" }}>
               + Bulk Upload
             </Button>
@@ -262,9 +285,8 @@ const DomesticInquiries = () => {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row) => row.id} // Ensure unique ID
           pageSize={10}
-          pageSizeOptions={[5, 10, 20]}
+          rowsPerPageOptions={[5, 10, 20]}
           // checkboxSelection
           disableSelectionOnClick
           components={{
@@ -324,4 +346,4 @@ const DomesticInquiries = () => {
   );
 };
 
-export default DomesticInquiries;
+export default InternationalInquiries;

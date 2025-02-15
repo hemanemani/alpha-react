@@ -13,18 +13,12 @@ const DomesticInquiries = () => {
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRowId, setSelectedRowId] = useState(null);
 
-
-  const handleMenuOpen = (event,id) => {
+  const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-    setSelectedRowId(id);
-
   };
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedRowId(null);
-
   };
   
 
@@ -150,14 +144,14 @@ const DomesticInquiries = () => {
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
+            <IconButton onClick={handleMenuOpen}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)&& selectedRowId === params.row.id}
+              open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -171,18 +165,18 @@ const DomesticInquiries = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleOffers(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleOffers(params.row.id)} 
               >
                 <ZoomOutMap 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 />Move to Offers
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(params.row.id)} 
               >
                 <Block 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
@@ -195,8 +189,6 @@ const DomesticInquiries = () => {
   ];
 
   const handleEdit = (id) => {
-    console.log(id)
-
     navigate(`/inquiries/domestic/edit-inquiry/${id}`);
   };
   
@@ -262,9 +254,8 @@ const DomesticInquiries = () => {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row) => row.id} // Ensure unique ID
           pageSize={10}
-          pageSizeOptions={[5, 10, 20]}
+          rowsPerPageOptions={[5, 10, 20]}
           // checkboxSelection
           disableSelectionOnClick
           components={{

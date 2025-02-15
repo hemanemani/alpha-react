@@ -86,7 +86,16 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
         <span style={{ color: "#000",fontSize:"22px" }}>All Cancelled Inquiries</span>
       </Box>
     ),
-    "/offers": "Offers",
+    "/offers/domestic": (
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All Domestic Offers</span>
+      </Box>
+    ),
+    "/offers/international": (
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All International Offers</span>
+      </Box>
+    ),
     "/users": "Users",
     "/users": (
       <Box sx={{ p: 1,  }}>
