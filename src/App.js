@@ -23,6 +23,9 @@ import BulkUploadInternational from "./pages/InquiriesPage/BulkUploadInternation
 import Unauthorized from "./pages/Unauthorized";
 import { AuthProvider } from "./services/AuthContext";
 import CancellationTab from "./pages/CancelledPage/Cancellations";
+import OfferCancellationTab from "./pages/CancelledPage/OfferCancellations";
+import OfferDomesticCancellations from "./pages/CancelledPage/OfferDomesticCancellations";
+import Testing from "./pages/Testing";
 
 
 function App() {
@@ -92,21 +95,6 @@ function App() {
                     <InternationalOffers />
                   </ProtectedRoute>
               } />
-              <Route path="cancellations" element={
-                  <ProtectedRoute allowedAccess={["full"]} selectedPage="cancellations">
-                    <CancellationTab />
-                  </ProtectedRoute>
-              } />
-              <Route path="cancellations/domestic" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="cancellations/domestic">
-                    <DomesticCancellations />
-                  </ProtectedRoute>
-              } />
-              <Route path="cancellations/international" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="cancellations/international">
-                    <InternationalCancellations />
-                  </ProtectedRoute>
-              } />
               <Route path="users" element={
                 <ProtectedRoute allowedAccess={["full"]} selectedPage="users">
                   <UsersPage />
@@ -122,6 +110,12 @@ function App() {
                   <EditUserForm />
                 </ProtectedRoute>
               } />
+              <Route path="cancellations" element={ <CancellationTab /> } />
+              <Route path="cancellations/domestic" element={ <DomesticCancellations />} />
+              <Route path="cancellations/international" element={ <InternationalCancellations /> } />
+              <Route path="offers/cancellations" element={ <OfferCancellationTab /> } />
+              <Route path="offers/cancellations/domestic" element={ <OfferDomesticCancellations />} />
+              <Route path="/testing" element={<Testing />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
               </Route>
         </Routes>

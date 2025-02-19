@@ -10,11 +10,10 @@ import {
   Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Person } from "@mui/icons-material";
+import { Logout, Person } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import axiosInstance from "../../services/axios";
 import { useNavigate } from 'react-router-dom';
-
 
 const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
   const navigate = useNavigate();
@@ -86,6 +85,12 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
         <span style={{ color: "#000",fontSize:"22px" }}>All Cancelled Inquiries</span>
       </Box>
     ),
+    "/offers/cancellations": (
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>All Cancelled Offers</span>
+      </Box>
+    ),
+
     "/offers/domestic": (
       <Box sx={{ p: 1,  }}>
         <span style={{ color: "#000",fontSize:"22px" }}>All Domestic Offers</span>
@@ -225,7 +230,6 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
 
   return (
     <AppBar
-      position="absolute"
       sx={{
         width: `calc(100% - ${drawerWidth}px)`, // Adjust based on sidebar width
         transition: "width 0.3s ease",
@@ -278,9 +282,17 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
           MenuListProps={{
             "aria-labelledby": "user-menu",
           }}
+          sx={{
+            "& .MuiPaper-root": {
+              boxShadow:"none",
+              borderRadius:"5px",
+              border:"1px solid #d9d9d9",
+            },
+          }}
         >
-          <MenuItem onClick={handleLogout}>
-            Logout
+          <MenuItem onClick={handleLogout} sx={{padding:"0 25px",}}>
+          <Logout />
+          <Typography sx={{fontWeight:"600",fontSize:"14px",marginLeft:"10px"}}>Logout</Typography>
           </MenuItem>
         </Menu>
       </Toolbar>

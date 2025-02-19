@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment,Grid } from "@mui/material";
+import { Box, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment,Grid, Tooltip } from "@mui/material";
 import axiosInstance from "../../services/axios";
-import { Block, Edit,MoreHoriz,IosShare } from "@mui/icons-material";
+import { Block, Edit,MoreHoriz,IosShare,ZoomOutMap } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
-
 
 const InternationalCancellations = () => {
   const navigate = useNavigate();
@@ -73,8 +72,104 @@ const InternationalCancellations = () => {
     fetchInternationalcancellationData(); 
   },[]);
 
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+  
+      const response = await axiosInstance.patch(`/international-inquiries/${id}/update-international-inquiry-status`, 
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+        console.log(response.data.message);
+    }
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
+
+  };
+
   const handleEdit = (id) => {
-    navigate(`/inquiries/international/edit-inquiry/${id}`);
+    navigate(`/inquiries/international/edit-international-inquiry/${id}`);
+  };
+
+  const handleInternationalInquiry = (id) => handleUpdateStatus(id, '2');
+
+
+  const handleBlockInternationalInquiry = async(id,mobile_number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+  
+      const response = await axiosInstance.post(`/block-international-inquiry/${id}`, { mobile_number },
+        { headers: 
+          { Authorization: `Bearer ${token}` }
+        }
+      );
+      if (response.data.success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+        console.log('Blocked successfully')
+    }
+
+    } catch (error) {
+        alert(error.response?.data?.error || "Duplicate Entry");
+    }
+
+  };
+
+  const renderTooltipCell = (value) => {
+    if (!value) return null; // Handle empty values
+  
+    const words = value.split(" ");
+    const truncatedValue = words.length > 3 ? words.slice(0, 3).join(" ") + "..." : value;
+  
+    return (
+      <Tooltip
+        title={value} // Full text in tooltip
+        placement="top"
+        arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: "window",
+              },
+            },
+          ],
+        }}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "white",
+              color: "black",
+              fontSize: "12px",
+              padding: "8px",
+              borderRadius: "4px",
+              width: "auto",
+              border:"1px solid #ddddde"
+            },
+          },
+          arrow: {
+            sx: {
+              color: "white",
+            },
+          },
+        }}
+      >
+        <Typography sx={{fontWeight:"500",lineHeight:"inherit",cursor:"pointer",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{truncatedValue}</Typography>
+      </Tooltip>
+    );
   };
 
   const columns = [
@@ -92,12 +187,17 @@ const InternationalCancellations = () => {
       <span>
         Specific <br /> Products
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+  },
     { field: "product_categories", headerName: "Product Categories", width: 100,renderHeader: () => (
       <span>
         Product <br /> Categ.
       </span>
-    )},
+    ),    
+    renderCell: (params) => renderTooltipCell(params.value)
+
+  },
     { field: "name", headerName: "Name", width: 100 },
     { field: "location", headerName: "Location (City)", width: 150,renderHeader: () => (
       <span>
@@ -119,7 +219,7 @@ const InternationalCancellations = () => {
         3rd Contact <br /> Date
       </span>
     ) },
-    { field: "notes", headerName: "Notes", width: 100 },
+    { field: "notes", headerName: "Notes", width: 100,renderCell: (params) => renderTooltipCell(params.value)},
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
@@ -149,6 +249,17 @@ const InternationalCancellations = () => {
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
               </MenuItem>
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleInternationalInquiry(selectedRowId)} >
+                  <ZoomOutMap 
+                      style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
+                  />Move Back to Inquiry
+              </MenuItem>
+                <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleBlockInternationalInquiry(params.row.id,params.row.mobile_number)} 
+                >
+                  <Block 
+                      style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
+                  />Block
+                </MenuItem>
             </Menu>
           </Grid>
       ) 
@@ -159,7 +270,7 @@ const InternationalCancellations = () => {
     <Box sx={{ height: 500, width: "100%", p: 2 }}>
        {/* HEADER */}
        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-        <Typography gutterBottom sx={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
+        <Typography component="div" gutterBottom sx={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
             View Analytics
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -198,12 +309,12 @@ const InternationalCancellations = () => {
           
         </Box>
       </Box>
-      <Typography sx={{color:'#817f89',fontWeight:"500",fontSize:"13px"}}>Total : {rows.length} </Typography>
+      <Typography component="div" sx={{color:'#817f89',fontWeight:"500",fontSize:"13px"}}>Total : {rows.length} </Typography>
       <DataGrid
         rows={rows}
         columns={columns}
         pageSize={10}
-        rowsPerPageOptions={[5, 10, 20]}
+        pageSizeOptions={[5, 10, 20]}
         // checkboxSelection
         disableSelectionOnClick
         components={{

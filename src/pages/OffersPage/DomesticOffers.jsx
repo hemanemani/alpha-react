@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu } from "@mui/material";
+import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu, Tooltip } from "@mui/material";
 import axiosInstance from "../../services/axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Block, Edit, IosShare, MoreHoriz, ZoomOutMap } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-
 
 const DomesticOffers = () => {
   const navigate = useNavigate();
@@ -60,7 +59,7 @@ const DomesticOffers = () => {
     fetchOffersData(); 
   },[]);
 
-  const handleUpdateStatus = async (id, status) => {
+  const handleUpdateStatus = async (id, offers_status) => {
     try {
       const token = localStorage.getItem("authToken");
   
@@ -69,15 +68,14 @@ const DomesticOffers = () => {
         return;
       }
   
-      const response = await axiosInstance.patch(`/inquiries/${id}/update-inquiry-status`, 
-        { status },
+      const response = await axiosInstance.patch(`/offers/${id}/update-offer-status`, 
+        { offers_status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
+        console.log(response.data)
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
         console.log(response.data.message);
-
-        // Optimistically update the status in the table
-        await fetchOffersData(); 
 
     }
     } catch (error) {
@@ -90,8 +88,55 @@ const DomesticOffers = () => {
     navigate(`/inquiries/domestic/edit-inquiry/${id}`);
   };
   
-  const handleMoveToInquiries = (id) => handleUpdateStatus(id, null);
+  // const handleMoveToOrders = (id) => handleUpdateStatus(id, 1);
+
   const handleCancel = (id) => handleUpdateStatus(id, 0);
+
+  const renderTooltipCell = (value) => {
+    if (!value) return null; // Handle empty values
+  
+    const words = value.split(" ");
+    const truncatedValue = words.length > 3 ? words.slice(0, 3).join(" ") + "..." : value;
+  
+    return (
+      <Tooltip
+        title={value} // Full text in tooltip
+        placement="top"
+        arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: "window",
+              },
+            },
+          ],
+        }}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "white",
+              color: "black",
+              fontSize: "12px",
+              padding: "8px",
+              borderRadius: "4px",
+              width: "auto",
+              border:"1px solid #ddddde"
+            },
+          },
+          arrow: {
+            sx: {
+              color: "white",
+            },
+          },
+        }}
+      >
+        <Typography sx={{fontWeight:"500",lineHeight:"inherit",cursor:"pointer",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{truncatedValue}</Typography>
+      </Tooltip>
+    );
+  };
+    
 
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 70,renderHeader: () => (
@@ -108,12 +153,16 @@ const DomesticOffers = () => {
       <span>
         Specific <br /> Products
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+  },
     { field: "product_categories", headerName: "Product Categories", width: 100,renderHeader: () => (
       <span>
         Product <br /> Categ.
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+  },
     { field: "name", headerName: "Name", width: 100 },
     { field: "location", headerName: "Location (City)", width: 150,renderHeader: () => (
       <span>
@@ -135,7 +184,7 @@ const DomesticOffers = () => {
         3rd Contact <br /> Date
       </span>
     ) },
-    { field: "notes", headerName: "Notes", width: 100 },
+    { field: "notes", headerName: "Notes", width: 100,renderCell: (params) => renderTooltipCell(params.value)},
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
@@ -165,11 +214,11 @@ const DomesticOffers = () => {
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleMoveToInquiries(selectedRowId)} 
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} 
               >
                 <ZoomOutMap 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
-                />Move to Offers
+                />Move to Orders
               </MenuItem>
               <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(selectedRowId)} 
               >

@@ -92,6 +92,8 @@ const InquiryGrowthCard = ({ data }) => (
 const HomePage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const handleDateChange = (date) => setSelectedDate(date);
+  const [refresh, setRefresh] = useState(false);
+
   const [dashBoardData, setdashBoardData] = useState(
     {
       topLocations: [],
@@ -124,7 +126,7 @@ const HomePage = () => {
 
   useEffect(() => {
       fetchDashboardData();
-    }, []);
+    }, [refresh]);
   
 
   return (
@@ -132,7 +134,7 @@ const HomePage = () => {
       <Grid container spacing={3} sx={{ width: "100%" }}>
         <Grid item xs={12} sx={{display:"flex",alignItems:"center",justifyContent:"end"}}>
             <Autorenew sx={{fontSize:"15px",marginRight:"3px"}} />
-            <Typography sx={{fontSize:"12px",marginRight:"6px",fontWeight:"bold"}}>Refresh All</Typography>
+            <Typography sx={{fontSize:"12px",marginRight:"6px",fontWeight:"bold",cursor:"pointer"}} onClick={() => setRefresh(prev => !prev)}>Refresh All</Typography>
         </Grid>
 
         {/* First Row: Inquiries, Offers */}

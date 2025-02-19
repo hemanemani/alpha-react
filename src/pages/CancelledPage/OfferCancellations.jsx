@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Tab, Box, Typography } from '@mui/material';
-import DomesticCancellations from './DomesticCancellations';
-import InternationalCancellations from './InternationalCancellations';
+
+import OfferDomesticCancellations from './OfferDomesticCancellations';
+import OfferInternationalCancellations from './OfferInternationalCancellations';
 
 
 // TabPanel component to render the content for each tab
@@ -17,14 +18,14 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
   );
 }
 
-export default function CancellationTab() {
+export default function OfferCancellationTab() {
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -50,11 +51,12 @@ export default function CancellationTab() {
 
       {/* TabPanel Components */}
       <TabPanel value={value} index={0}>
-        <DomesticCancellations />
+        <OfferDomesticCancellations />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <InternationalCancellations />
+        <OfferInternationalCancellations />
       </TabPanel>
+
     </Box>
   );
 }

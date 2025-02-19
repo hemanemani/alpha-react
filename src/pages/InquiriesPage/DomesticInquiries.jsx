@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu } from "@mui/material";
+import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu, Tooltip } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import axiosInstance from "../../services/axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Block, Edit, IosShare, MoreHoriz, ZoomOutMap } from "@mui/icons-material";
-
 
 const DomesticInquiries = () => {
   const navigate = useNavigate();
@@ -90,10 +89,8 @@ const DomesticInquiries = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
         console.log(response.data.message);
-
-        await fetchInquiryData(); 
-
     }
     } catch (error) {
         console.error("Error updating status:", error);
@@ -103,6 +100,52 @@ const DomesticInquiries = () => {
   
   const handleOffers = (id) => handleUpdateStatus(id, 1);
   const handleCancel = (id) => handleUpdateStatus(id, 0);
+
+  const renderTooltipCell = (value) => {
+    if (!value) return null; // Handle empty values
+  
+    const words = value.split(" ");
+    const truncatedValue = words.length > 3 ? words.slice(0, 3).join(" ") + "..." : value;
+  
+    return (
+      <Tooltip
+        title={value} // Full text in tooltip
+        placement="top"
+        arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: "window",
+              },
+            },
+          ],
+        }}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "white",
+              color: "black",
+              fontSize: "12px",
+              padding: "8px",
+              borderRadius: "4px",
+              width: "auto",
+              border:"1px solid #ddddde"
+            },
+          },
+          arrow: {
+            sx: {
+              color: "white",
+            },
+          },
+        }}
+      >
+        <Typography sx={{fontWeight:"500",lineHeight:"inherit",cursor:"pointer",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{truncatedValue}</Typography>
+      </Tooltip>
+    );
+  };
+  
   
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 70,renderHeader: () => (
@@ -115,16 +158,22 @@ const DomesticInquiries = () => {
         Inquiry <br /> Date
       </span>
     )},
-    { field: "specific_product", headerName: "Specific Products", width: 100,renderHeader: () => (
-      <span>
-        Specific <br /> Products
-      </span>
-    )},
-    { field: "product_categories", headerName: "Product Categories", width: 100,renderHeader: () => (
+    { field: "specific_product", headerName: "Specific Products", width: 100,
+      renderHeader: () => (
+        <span>
+          Specific <br /> Products
+        </span>
+      ),
+      renderCell: (params) => renderTooltipCell(params.value)
+  },
+    { field: "product_categories", headerName: "Product Categories", width: 100,
+      renderHeader: () => (
       <span>
         Product <br /> Categ.
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+  },
     { field: "name", headerName: "Name", width: 100 },
     { field: "location", headerName: "Location (City)", width: 150,renderHeader: () => (
       <span>
@@ -146,7 +195,8 @@ const DomesticInquiries = () => {
         3rd Contact <br /> Date
       </span>
     ) },
-    { field: "notes", headerName: "Notes", width: 100 },
+    { field: "notes", headerName: "Notes", width: 100,
+      renderCell: (params) => renderTooltipCell(params.value) },
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>

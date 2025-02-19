@@ -140,6 +140,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnable
       submenu: [
         { label: "Domestic", to: "/offers/domestic" },
         { label: "International", to: "/offers/international" },
+        { label: "Cancellations", to: "/offers/cancellations" },
       ],
     },
     {
@@ -291,7 +292,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnable
         sx={{
           display: { xs: "none", sm: "block" },
           "& .MuiDrawer-paper": {
-            backgroundColor: "transparent",
+            backgroundColor: "#f5f5f3",
             transition: "width 0.3s ease",
             width: isHoverEnabled ? (hovered ? 240 : 60) : 240,
             overflowX: "hidden",

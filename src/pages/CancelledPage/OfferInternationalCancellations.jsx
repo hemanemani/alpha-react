@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment,Grid } from "@mui/material";
+import { Box, Grid, Typography,MenuItem, Avatar, IconButton, Menu,Button, TextField, InputAdornment, Tooltip } from "@mui/material";
 import axiosInstance from "../../services/axios";
-import { Block, Edit,MoreHoriz,IosShare } from "@mui/icons-material";
-import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
+import { Block, Edit,MoreHoriz,IosShare, ZoomOutMap } from "@mui/icons-material";
+import SearchIcon from "@mui/icons-material/Search";
 
-
-const InternationalCancellations = () => {
+const OfferInternationalCancellations = () => {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState([]);
+  const [selectedRowId, setSelectedRowId] = useState(null);
   
-  
+  const handleMenuOpen = (event,id) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRowId(id);
+
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRowId(null);
+
+  };
   useEffect(() => {
     const filteredData = rows.filter((row) =>
       Object.values(row).some(
@@ -25,15 +34,10 @@ const InternationalCancellations = () => {
     );
     setFilteredRows(filteredData);
   }, [searchText, rows]);
-  
-    const handleMenuOpen = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-    const handleMenuClose = () => {
-      setAnchorEl(null);
-    };
 
-  const fetchInternationalcancellationData = async()=>{
+ 
+
+  const fetchOfferCancellationData = async()=>{
     const token = localStorage.getItem('authToken');
       if (!token) {
       console.log("User is not authenticated.");
@@ -41,12 +45,11 @@ const InternationalCancellations = () => {
     }
 
     try {
-      const response = await axiosInstance.get('/inquiry-cancellation-international-offers',{
+      const response = await axiosInstance.get('/offer-international-cancellations',{
         headers: {
           'Authorization': `Bearer ${token}`,
         }
-      }
-      );
+      });
 
       if (response && response.data) {
         // Preprocess data to include "addedBy" field
@@ -56,20 +59,117 @@ const InternationalCancellations = () => {
         }));
         setRows(processedData);
       }else {
-        console.error("Failed to fetch international cancellations", response.status);
+        console.error("Failed to fetch cancellations", response.status);
       }
 
     } catch (error) {
-      console.error("Error fetching international cancellations:", error);
+      console.error("Error fetching cancellations:", error);
     }
   };
 
   useEffect(()=>{
-    fetchInternationalcancellationData(); 
+    fetchOfferCancellationData(); 
   },[]);
 
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+  
+      const response = await axiosInstance.patch(`/offers/${id}/update-international-offer-status`, 
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+
+        console.log(response.data.message);
+    }
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
+
+  };
+
   const handleEdit = (id) => {
-    navigate(`/inquiries/international/edit-inquiry/${id}`);
+    navigate(`/inquiries/international/edit-international-inquiry/${id}`);
+  };
+
+  const handleOffers = (id) => handleUpdateStatus(id, 1);
+
+  
+  const handleBlockInternationalOffer = async(id,mobile_number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+  
+      const response = await axiosInstance.post(`/block-international-offer/${id}`, { mobile_number },
+        { headers: 
+          { Authorization: `Bearer ${token}` }
+        }
+      );
+      if (response.data.success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+        console.log('Blocked successfully')
+    }
+
+    } catch (error) {
+        alert(error.response?.data?.error || "Duplicate Entry");
+    }
+
+  };
+
+  const renderTooltipCell = (value) => {
+    if (!value) return null; // Handle empty values
+  
+    const words = value.split(" ");
+    const truncatedValue = words.length > 3 ? words.slice(0, 3).join(" ") + "..." : value;
+  
+    return (
+      <Tooltip
+        title={value} // Full text in tooltip
+        placement="top"
+        arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: "window",
+              },
+            },
+          ],
+        }}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "white",
+              color: "black",
+              fontSize: "12px",
+              padding: "8px",
+              borderRadius: "4px",
+              width: "auto",
+              border:"1px solid #ddddde"
+            },
+          },
+          arrow: {
+            sx: {
+              color: "white",
+            },
+          },
+        }}
+      >
+        <Typography sx={{fontWeight:"500",lineHeight:"inherit",cursor:"pointer",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{truncatedValue}</Typography>
+      </Tooltip>
+    );
   };
 
   const columns = [
@@ -87,12 +187,16 @@ const InternationalCancellations = () => {
       <span>
         Specific <br /> Products
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+    },
     { field: "product_categories", headerName: "Product Categories", width: 100,renderHeader: () => (
       <span>
         Product <br /> Categ.
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+    },
     { field: "name", headerName: "Name", width: 100 },
     { field: "location", headerName: "Location (City)", width: 150,renderHeader: () => (
       <span>
@@ -114,18 +218,18 @@ const InternationalCancellations = () => {
         3rd Contact <br /> Date
       </span>
     ) },
-    { field: "notes", headerName: "Notes", width: 100 },
+    { field: "notes", headerName: "Notes", width: 100,renderCell: (params) => renderTooltipCell(params.value)},
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
-            <IconButton onClick={handleMenuOpen}>
+            <IconButton onClick={(event) => handleMenuOpen(event, params.row.id)}>
               <Avatar sx={{ bgcolor: "#d9d9d9", color:"#000",width:'35px',height:'35px' }}>
                 <MoreHoriz />
               </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
+              open={Boolean(anchorEl)&& selectedRowId === params.row.id}
               onClose={handleMenuClose}
               MenuListProps={{
                 "aria-labelledby": "user-menu",
@@ -139,10 +243,22 @@ const InternationalCancellations = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(params.row.id)} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
-                /> Edit Inquiry
+                /> Edit Offer
+              </MenuItem>
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleOffers(selectedRowId)} 
+                            >
+                <ZoomOutMap 
+                    style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
+                />Move Back to Offers
+            </MenuItem>
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleBlockInternationalOffer(params.row.id,params.row.mobile_number)} 
+              >
+                <Block 
+                    style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
+                />Block
               </MenuItem>
             </Menu>
           </Grid>
@@ -154,7 +270,7 @@ const InternationalCancellations = () => {
     <Box sx={{ height: 500, width: "100%", p: 2 }}>
        {/* HEADER */}
        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-        <Typography gutterBottom sx={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
+        <Typography component="div" gutterBottom sx={{ fontSize: '14px', fontWeight: 'bold', textDecoration: 'underline' }}>
             View Analytics
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -193,12 +309,12 @@ const InternationalCancellations = () => {
           
         </Box>
       </Box>
-      <Typography sx={{color:'#817f89',fontWeight:"500",fontSize:"13px"}}>Total : {rows.length} </Typography>
+      <Typography component="div" sx={{color:'#817f89',fontWeight:"500",fontSize:"13px"}}>Total : {rows.length} </Typography>
       <DataGrid
         rows={rows}
         columns={columns}
         pageSize={10}
-        rowsPerPageOptions={[5, 10, 20]}
+        pageSizeOptions={[5, 10, 20]}
         // checkboxSelection
         disableSelectionOnClick
         components={{
@@ -258,4 +374,4 @@ const InternationalCancellations = () => {
   );
 };
 
-export default InternationalCancellations;
+export default OfferInternationalCancellations;

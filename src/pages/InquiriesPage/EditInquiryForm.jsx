@@ -29,6 +29,17 @@ const EditInquiryForm = () => {
         user_id: '',
         status:''
 
+    });
+
+    const [offerData,setOfferData] = useState({
+        offer_number: '',
+        communication_date: '',
+        received_sample_amount: '',
+        sample_dispatched_date: '',
+        sample_sent_through: '',
+        sample_received_date: '',
+        offer_notes: '',
+        inquiry_id: '',
     })
 
     useEffect(() => {
@@ -47,12 +58,16 @@ const EditInquiryForm = () => {
               }
             const fetchItem = async () => {
                 try {
-                    const response = await axiosInstance.get(`inquiries/${id}`,{
+                    const response = await axiosInstance.get(`inquiries/${id}/with-offers`,{
                         headers: {
                             'Authorization': `Bearer ${token}`,
                         }
                     });
                     setFormData(response.data.inquiry);
+                    if (response.data.offers.length > 0) {
+                        setOfferData(response.data.offers[0]); // Select the first offer
+                    }
+    
                 } catch (error) {
                     console.error('Error fetching item:', error);
                 }
@@ -66,6 +81,11 @@ const EditInquiryForm = () => {
             ...formData,
             [e.target.name] : e.target.value
         })
+        setOfferData({
+            ...offerData,
+            [e.target.name] : e.target.value
+        })
+        
     }
 
     
@@ -86,27 +106,41 @@ const EditInquiryForm = () => {
         try {
             const url = id ? `inquiries/${id}` : 'inquiries';  // Determine the URL for PUT or POST
             const method = id ? 'put' : 'post';  // Use PUT if id exists, otherwise POST
-                
-                const response = await axiosInstance({
-                    method: method,
-                    url: url,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    data: {
-                        ...formData,
-                        inquiry_date: formattedInquiryDate,
-                        first_contact_date: formattedFirstDate,
-                        second_contact_date: formattedSecondDate,
-                        third_contact_date : formattedThirdDate,
-                        user_id: user.id
-                    }
-                });
-                if (response) {
-                    navigate('/inquiries/domestic')
-                } else {
-                    console.error(`${id ? "Failed to edit" : "Failed to add"} inquiry`, response.status);
-                }  
+            const requestData = {
+                ...formData,
+                inquiry_date: formattedInquiryDate,
+                first_contact_date: formattedFirstDate,
+                second_contact_date: formattedSecondDate,
+                third_contact_date: formattedThirdDate,
+                user_id: user.id,
+            };
+    
+            // Include offer data only if status === 1
+            if (formData.status === 1) {
+                requestData.offer_data = {
+                    offer_number: offerData.offer_number,
+                    communication_date: offerData.communication_date || null,
+                    received_sample_amount: offerData.received_sample_amount || null,
+                    sample_dispatched_date: offerData.sample_dispatched_date || null,
+                    sample_sent_through: offerData.sample_sent_through || null,
+                    sample_received_date: offerData.sample_received_date || null,
+                    offer_notes: offerData.offer_notes || null,
+                };
+            }
+            
+            const response = await axiosInstance({
+                method: method,
+                url: url,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                data: requestData
+            });
+            if (response) {
+                navigate(formData.status === 1 ? '/offers/domestic' : '/inquiries/domestic');
+            }else {
+                console.error(`${id ? "Failed to edit" : "Failed to add"} inquiry`, response.status);
+            } 
         } catch (error) {
             console.error("Error submitting inquiry:", error);
             if (error.response && error.response.data) {
@@ -119,7 +153,7 @@ const EditInquiryForm = () => {
         <form onSubmit={handleSubmit}>
             <Grid container spacing="30px"  sx={{padding:"50px",width:"auto",marginLeft:0}}>
 
-            {formData.status ? 
+            {(formData.status ===1) ? 
                 <>
                 <Grid item xs={12} sm={12}>
                 <Typography variant="h6" fontWeight="500">
@@ -134,7 +168,7 @@ const EditInquiryForm = () => {
                     <TextField
                     fullWidth
                     name="offer_number"
-                    value={formData.offer_number || ''}
+                    value={offerData.offer_number || ''}
                     onChange={handleChange}
                     variant="outlined"
                     placeholder="Please enter offer number"
@@ -167,7 +201,7 @@ const EditInquiryForm = () => {
                     fullWidth
                     type="date"
                     name="communication_date"
-                    value={formData.communication_date || ''}
+                    value={offerData.communication_date || ''}
                     onChange={handleChange}
                     variant="outlined"
                     InputLabelProps={{
@@ -198,7 +232,7 @@ const EditInquiryForm = () => {
                     <TextField
                     fullWidth
                     name="received_sample_amount"
-                    value={formData.received_sample_amount || ''}
+                    value={offerData.received_sample_amount || ''}
                     onChange={handleChange}
                     variant="outlined"
                     placeholder="Please enter sample amount"
@@ -231,7 +265,7 @@ const EditInquiryForm = () => {
                     fullWidth
                     type="date"
                     name="sample_dispatched_date"
-                    value={formData.sample_dispatched_date || ''}
+                    value={offerData.sample_dispatched_date || ''}
                     onChange={handleChange}
                     variant="outlined"
                     InputLabelProps={{
@@ -262,7 +296,7 @@ const EditInquiryForm = () => {
                     <TextField
                     fullWidth
                     name="sample_sent_through"
-                    value={formData.sample_sent_through || ''}
+                    value={offerData.sample_sent_through || ''}
                     onChange={handleChange}
                     variant="outlined"
                     placeholder="Please enter sample sent through"
@@ -295,7 +329,7 @@ const EditInquiryForm = () => {
                     fullWidth
                     type="date"
                     name="sample_received_date"
-                    value={formData.sample_received_date || ''}
+                    value={offerData.sample_received_date || ''}
                     onChange={handleChange}
                     variant="outlined"
                     InputLabelProps={{
@@ -327,7 +361,7 @@ const EditInquiryForm = () => {
                 <TextField
                     fullWidth
                     name="offer_notes"
-                    value={formData.offer_notes || ''}
+                    value={offerData.offer_notes || ''}
                     onChange={handleChange}
                     variant="outlined"
                     multiline
@@ -900,10 +934,10 @@ const EditInquiryForm = () => {
                             },
                         }}
                     >
-                    <MenuItem value="" sx={{ fontSize: "14px", fontWeight: "500",borderBottom:"1px solid #d9d9d9"  }}>Select Status</MenuItem>
+                    <MenuItem value="2" sx={{ fontSize: "14px", fontWeight: "500",borderBottom:"1px solid #d9d9d9"  }}>Select Status</MenuItem>
 
                     <MenuItem value="1" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9" }}><ZoomOutMap sx={{fontSize:"14px",marginRight:"5px"}} /> Move to Offers</MenuItem>
-                    <MenuItem value="0" sx={{fontSize:"14px",fontWeight:"500",borderBottom:"1px solid #d9d9d9" }}><Block sx={{fontSize:"14px",marginRight:"5px"}} />Cancel</MenuItem>
+                    <MenuItem value="0" sx={{fontSize:"14px",fontWeight:"500" }}><Block sx={{fontSize:"14px",marginRight:"5px"}} />Cancel</MenuItem>
                  </TextField>
                  </Grid>
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu } from "@mui/material";
+import { Box, Button, Grid, Typography, TextField, InputAdornment, MenuItem, Avatar, IconButton, Menu, Tooltip } from "@mui/material";
 import axiosInstance from "../../services/axios";
 import { Block, Edit, IosShare, MoreHoriz, ZoomOutMap } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link, useNavigate } from "react-router-dom";
 
 const InternationalOffers = () => {
+  const navigate = useNavigate();
 
   const [rows, setRows] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -57,6 +58,84 @@ const InternationalOffers = () => {
     fetchInternationalOffersData(); 
   },[]);
 
+  const handleUpdateStatus = async (id, offers_status) => {
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      if (!token) {
+        console.log("User is not authenticated.");
+        return;
+      }
+  
+      const response = await axiosInstance.patch(`/offers/${id}/update-international-offer-status`, 
+        { offers_status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.success) {
+
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+        console.log(response.data.message);
+
+    }
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
+
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/inquiries/international/edit-international-inquiry/${id}`);
+  };
+  
+  // const handleMoveToOrders = (id) => handleUpdateStatus(id, 1);
+
+  const handleCancel = (id) => handleUpdateStatus(id, 0);
+
+const renderTooltipCell = (value) => {
+    if (!value) return null; // Handle empty values
+  
+    const words = value.split(" ");
+    const truncatedValue = words.length > 3 ? words.slice(0, 3).join(" ") + "..." : value;
+  
+    return (
+      <Tooltip
+        title={value} // Full text in tooltip
+        placement="top"
+        arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: "window",
+              },
+            },
+          ],
+        }}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "white",
+              color: "black",
+              fontSize: "12px",
+              padding: "8px",
+              borderRadius: "4px",
+              width: "auto",
+              border:"1px solid #ddddde"
+            },
+          },
+          arrow: {
+            sx: {
+              color: "white",
+            },
+          },
+        }}
+      >
+        <Typography sx={{fontWeight:"500",lineHeight:"inherit",cursor:"pointer",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{truncatedValue}</Typography>
+      </Tooltip>
+    );
+  };
+
   const columns = [
     { field: "inquiry_number", headerName: "Inq. No.", width: 70,renderHeader: () => (
       <span>
@@ -72,12 +151,16 @@ const InternationalOffers = () => {
       <span>
         Specific <br /> Products
       </span>
-    )},
+    ),    
+    renderCell: (params) => renderTooltipCell(params.value)
+    },
     { field: "product_categories", headerName: "Product Categories", width: 100,renderHeader: () => (
       <span>
         Product <br /> Categ.
       </span>
-    )},
+    ),
+    renderCell: (params) => renderTooltipCell(params.value)
+  },
     { field: "name", headerName: "Name", width: 100 },
     { field: "location", headerName: "Location (City)", width: 150,renderHeader: () => (
       <span>
@@ -99,7 +182,7 @@ const InternationalOffers = () => {
         3rd Contact <br /> Date
       </span>
     ) },
-    { field: "notes", headerName: "Notes", width: 100 },
+    { field: "notes", headerName: "Notes", width: 100,renderCell: (params) => renderTooltipCell(params.value)},
     { field: "actionButtons", headerName: "", width: 100, 
       renderCell: (params) => (
           <Grid container spacing={1} sx={{display:"block",marginTop:'auto'}}>
@@ -124,17 +207,19 @@ const InternationalOffers = () => {
               }}
             
             >
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleEdit(selectedRowId)} >
                 <Edit 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 /> Edit Inquiry
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} 
+              >
                 <ZoomOutMap 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
-                />Move to Offers
+                />Move to Orders
               </MenuItem>
-              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} >
+              <MenuItem sx={{fontSize:"14px",color:"#000",fontWeight:"500"}} onClick={() => handleCancel(selectedRowId)} 
+              >
                 <Block 
                     style={{ cursor: 'pointer',fontSize:"16px",color:"#565656",marginRight:"8px" }}
                 />Cancel
