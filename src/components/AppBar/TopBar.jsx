@@ -101,6 +101,11 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
         <span style={{ color: "#000",fontSize:"22px" }}>All International Offers</span>
       </Box>
     ),
+    "/inquiries/domestic/upload":(
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Bulk Upload Domestic Inquiries</span>
+      </Box>
+    ),
     "/users": "Users",
     "/users": (
       <Box sx={{ p: 1,  }}>
@@ -236,7 +241,9 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
         ml: `${drawerWidth}px`, // Push the top bar when sidebar expands
         backgroundColor: "transparent",
         boxShadow:"none",
-        mt:1
+        mt:1,
+        position:"absolute",
+        zIndex:"99"
       }}
     
     >

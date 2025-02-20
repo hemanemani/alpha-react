@@ -325,7 +325,7 @@ const DomesticCancellations = () => {
         }}
         initialState={{
           pagination: {
-            paginationModel: { pageSize: 10, page: 0 }, // Default to 10 rows per page
+            paginationModel: { pageSize: 7, page: 0 }, // Default to 10 rows per page
           }, 
           columns: {
             columnVisibilityModel: {
@@ -363,7 +363,7 @@ const DomesticCancellations = () => {
           "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']": {
             backgroundColor: "transparent !important",
           },            
-          height:"auto"
+          height:"auto",
         }}
       
       />

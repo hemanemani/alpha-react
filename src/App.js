@@ -117,7 +117,7 @@ function App() {
               <Route path="offers/cancellations/domestic" element={ <OfferDomesticCancellations />} />
               <Route path="/testing" element={<Testing />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
-              </Route>
+          </Route>
         </Routes>
       </AuthProvider>
     </Router>

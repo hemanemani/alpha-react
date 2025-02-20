@@ -267,6 +267,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnable
         width: { sm: drawerWidth },
         flexShrink: { sm: 0 },
         backgroundColor: "transparent",
+        zIndex:"99"
       }}
       aria-label="sidebar"
     >

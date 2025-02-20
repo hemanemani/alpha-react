@@ -4,12 +4,12 @@ import { Box, Button, Grid, Typography, TextField, InputAdornment } from "@mui/m
 import SearchIcon from "@mui/icons-material/Search";
 import axiosInstance from "../../services/axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Delete, Download } from "@mui/icons-material";
+import { FolderOpen } from "@mui/icons-material";
+
 
 const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [density, setDensity] = useState(localStorage.getItem("dataGridDensity") || "standard");
 
 
   useEffect(() => {
@@ -23,34 +23,82 @@ const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
     setFilteredRows(filteredData);
   }, [searchText, rows]);
 
-  const handleDensityChange = (newDensity) => {
-    setDensity(newDensity);
-    localStorage.setItem("dataGridDensity", newDensity);
-  };
-
   const columns = [
-    { field: "file_name", headerName: "Name", width: 100 },
-    { field: "uploaded_at", headerName: "Date Uploaded", width: 200 },
-    { field: "status", headerName: "Status", width: 150 },
-    { field: "uploaded_by", headerName: "Uploaded By", width: 150},
-    { field: "file_size", headerName: "File Size", width: 150},
+    { field: "file_name", headerName: "Name", width: 200,
+      renderCell: (params) => (
+        <>
+        
+        <Grid container alignItems="center" spacing={1}>
+          {/* File Icon */}
+          <Grid item>
+            <FolderOpen fontSize="medium" sx={{ marginRight: "10px" }} />
+          </Grid>
 
+          {/* File Name & Size */}
+          <Grid item>
+            <Typography variant="body2" fontWeight="500">
+              {params.value}
+            </Typography>
+            <Typography variant="caption" color="gray" sx={{ display: "block" }}>
+              {params.row.file_size} KB
+            </Typography>
+          </Grid>
+        </Grid>
+
+        </>
+  
+      ), 
+      sx:{
+        display:"flex",
+        alignItems:"center"
+      }
+    },
+    { field: "uploaded_at", headerName: "Date Uploaded", width: 250 },
+    { field: "uploaded_by", headerName: "Uploaded By", width: 200},
+    { field: "status", headerName: "Status", width: 200,
+      renderCell : (params) => (
+        <Typography 
+          sx={{ 
+            color: params.value === "Uploaded" ? "#4bb543" : "inherit", 
+            fontWeight: "500",
+            lineHeight:"inherit"
+          }}
+        >
+          {params.value}
+        </Typography>
+      )
+     },
     {
       field: "actionButtons",
-      headerName: "Action",
-      width: 150,
+      headerName: "",
+      width: 250,
       renderCell: (params) => (
+        
         <Grid container spacing={1}>
           <Grid item>
-            <Download onClick={() => handleDownload(params.row.file_path)} style={{ cursor: "pointer" }} />
-          </Grid>
-          
-          <Grid item>
-            <Delete onClick={() => handleDelete(params.row.id)} style={{ cursor: "pointer" }} />
+          <Button
+              size="small"
+              variant="outlined"
+              sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", fontSize:"12px",textTransform:"capitalize",border:"1px solid #d9d9d9", cursor: "pointer", marginRight:"10px" }}
+              onClick={() => handleDelete(params.row.id)}
+            >
+              Delete
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              sx={{ bgcolor: "black", color: "#fff", borderRadius: "8px", fontSize:"12px",textTransform:"capitalize",border:"1px solid #d9d9d9", cursor: "pointer"}}
+              onClick={() => handleDownload(params.row.file_path)}
+            >
+              Download
+            </Button>
+            
           </Grid>
         </Grid>
       ),
     },
+    
+   
   ];
 
   const handleDownload=(filePath)=>{
@@ -108,12 +156,17 @@ const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{
             width: "250px",
-            bgcolor: "white",
-            borderRadius: "8px",
-            boxShadow: "0px 1px 3px rgba(0,0,0,0.1)",
           }}
           InputProps={{
-            startAdornment: (
+            sx:{
+              borderRadius: "8px",
+              fontSize:"13px",
+              border:"1px solid #d9d9d9",
+              paddingRight:"0",
+              bgcolor: "white",
+
+            },
+            endAdornment: (
               <InputAdornment position="start">
                 <SearchIcon />
               </InputAdornment>
@@ -122,44 +175,60 @@ const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
         />
       </Box>
 
+
       {/* DATA GRID */}
       <DataGrid
-  slots={{ toolbar: GridToolbar }}
-  rows={filteredRows}
-  columns={columns}
-  pageSizeOptions={[5, 10, 20, 50]} // Add multiple options for rows per page
-  pagination
-  checkboxSelection
-  disableSelectionOnClick
-  density={density} 
-  onDensityChange={handleDensityChange}
-  components={{
-    Toolbar: GridToolbar,
-  }}
-  componentsProps={{
-    toolbar: {
-      showQuickFilter: true,
-      quickFilterProps: { debounceMs: 500 },
-    },
-    pagination: {
-      labelRowsPerPage: "Rows per page:", // Explicitly show the label
-    },
-  }}
-  initialState={{
-    pagination: {
-      paginationModel: { pageSize: 5 },
-    },
-    columns: {
-      columnVisibilityModel: {
-        file_name: true,
-        uploaded_on: true,
-        uploaded_by: true,
-        file_size: true,
-        status: true,
-      },
-    },
-  }}
-/>
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id} // Ensure unique ID
+        pageSize={10}
+        pageSizeOptions={[5, 10, 20]}
+        // checkboxSelection
+        disableSelectionOnClick
+        components={{
+          Toolbar: GridToolbar,
+        }}
+        componentsProps={{
+          toolbar: {
+            showQuickFilter: true, // Adds the quick search bar
+            quickFilterProps: { debounceMs: 500 },
+          },
+        }}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 5, page: 0 }, // Default to 10 rows per page
+          }, 
+          columns: {
+            columnVisibilityModel: {
+              file_name: true,
+              uploaded_on: true,
+              uploaded_by: true,
+              status: true,
+            },
+          },
+        }}
+        sx={{
+          mt:4,
+          "& .MuiDataGrid-columnHeaders": {
+            color: "#827f7f",
+            fontSize: "14px",
+            fontWeight: "500",
+
+          },
+          "& .MuiDataGrid-columnSeparator": {
+            display: "none",
+          },
+          "& .MuiDataGrid-row": {
+            color: "#000",
+            fontSize:"15px",
+            fontWeight:"500"
+          },
+          "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']": {
+            backgroundColor: "transparent !important",
+          },            
+          height:"auto"
+        }}
+      />
 
     </Box>
   );

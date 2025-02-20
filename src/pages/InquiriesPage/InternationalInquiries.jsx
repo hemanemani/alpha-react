@@ -313,14 +313,15 @@ const InternationalInquiries = () => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{
             width: "250px",
-            bgcolor: "white",
           }}
           InputProps={{
             sx:{
               borderRadius: "8px",
               fontSize:"13px",
               border:"1px solid #d9d9d9",
-              paddingRight:"0"
+              paddingRight:"0",
+              bgcolor: "white",
+
             },
             endAdornment: (
               <InputAdornment position="start">
@@ -351,7 +352,7 @@ const InternationalInquiries = () => {
           }}
           initialState={{
             pagination: {
-              paginationModel: { pageSize: 10, page: 0 }, // Default to 10 rows per page
+              paginationModel: { pageSize: 7, page: 0 }, // Default to 10 rows per page
             }, 
             columns: {
               columnVisibilityModel: {

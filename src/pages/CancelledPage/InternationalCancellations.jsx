@@ -328,7 +328,7 @@ const InternationalCancellations = () => {
         }}
         initialState={{
           pagination: {
-            paginationModel: { pageSize: 10, page: 0 }, // Default to 10 rows per page
+            paginationModel: { pageSize: 7, page: 0 }, // Default to 10 rows per page
           }, 
           columns: {
             columnVisibilityModel: {

@@ -12,7 +12,9 @@ const MainLayout = () => {
   const location = useLocation();
   const hoverRoutes = ["/inquiries/domestic", "/inquiries/international","/cancellations","/offers/domestic","/offers/international","/offers/cancellations"];
   const isHoverEnabled = hoverRoutes.includes(location.pathname);
-  const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
+  // const drawerWidth = isHoverEnabled ? (hovered ? 240 : 60) : 240;
+  const drawerWidth = isHoverEnabled ? 60 : 240;
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -56,7 +58,9 @@ const MainLayout = () => {
         }}
       >
         <Toolbar />
+        <Box> 
         <Outlet />
+        </Box>
       </Box>
     </Box>
   );

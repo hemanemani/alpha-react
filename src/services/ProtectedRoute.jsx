@@ -10,6 +10,11 @@ const ProtectedRoute = ({ children, allowedAccess, selectedPage }) => {
     return <div>Loading...</div>;
   }
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+
   if (!allowedAccess.includes(accessLevel)) {
     return <Navigate to="/unauthorized" />;
   }
@@ -18,10 +23,7 @@ const ProtectedRoute = ({ children, allowedAccess, selectedPage }) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
+  
   // If authenticated, render the children
   return children;
 };
