@@ -243,12 +243,12 @@ const BulkUploadDomestic = () => {
                             <FolderOpen fontSize="medium" sx={{ marginRight: "10px" }} />
                             <Typography variant="body2" fontWeight="500">
                               {selectedFile.name}
+                            </Typography>
                               <Grid container direction="column" alignItems="center">
                               <Typography variant="caption" color="gray" sx={{display:"block",marginRight:"auto"}}>
                                 ({(selectedFile.size / 1024).toFixed(2)} KB)
                               </Typography>
                               </Grid>
-                            </Typography>
                           </Grid>
 
                           <LinearProgress variant="determinate" value={progress} sx={{ 
@@ -264,7 +264,7 @@ const BulkUploadDomestic = () => {
                           <Typography variant="body2">{progress}% Uploaded</Typography>
                         </Stack>
                       ) : (
-                        <Box sx={{padding:"25px"}}>
+                        <Box sx={{padding:"25px",textAlign: "center", position: "relative"}}>
                         <UploadFile sx={{fontSize:"35px",marginBottom:"10px"}} />
                         <Typography variant="body1" sx={{ fontWeight: 600, mb: 1,fontSize:"15px" }}>
                           <span style={{textDecoration:"underline"}}>Click to upload </span>or drag and drop

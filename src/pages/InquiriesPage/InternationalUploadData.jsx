@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FolderOpen } from "@mui/icons-material";
 
 
-const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
+const InternationalUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
 
@@ -122,7 +122,7 @@ const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
     }
 
     try {
-        const response = await axiosInstance.delete(`/bulk-domestic-data/${id}`, {
+        const response = await axiosInstance.delete(`/bulk-international-data/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -234,4 +234,4 @@ const DomesticUploadData = ({rows, setRows , filteredRows,setFilteredRows}) => {
   );
 };
 
-export default DomesticUploadData;
+export default InternationalUploadData;

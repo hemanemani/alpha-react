@@ -106,6 +106,11 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
         <span style={{ color: "#000",fontSize:"22px" }}>Bulk Upload Domestic Inquiries</span>
       </Box>
     ),
+    "/inquiries/international/upload":(
+      <Box sx={{ p: 1,  }}>
+        <span style={{ color: "#000",fontSize:"22px" }}>Bulk Upload International Inquiries</span>
+      </Box>
+    ),
     "/users": "Users",
     "/users": (
       <Box sx={{ p: 1,  }}>
