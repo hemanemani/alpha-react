@@ -10,7 +10,7 @@ export const getCsrfToken = async () => {
   }
 };
 
-export const authLogin = async (credentials) => {
+export const authLogin = async (credentials,navigate, setAccessLevel, setAllowedPages) => {
     try {
       const response = await axiosInstance.post("/login", credentials, {
         withCredentials: true,
@@ -24,7 +24,13 @@ export const authLogin = async (credentials) => {
         if (userStatus == 1) {
           localStorage.setItem("authToken", response.data.access_token);
           localStorage.setItem("user", JSON.stringify(response.data.user));
-  
+          setAccessLevel(response.data.user.access_level);
+          setAllowedPages(response.data.user.allowed_pages || []);
+
+          // ✅ Now navigate after updating access
+          navigate("/"); 
+
+
           return response.data;
         } else {
           throw new Error("User is not authorized to login");

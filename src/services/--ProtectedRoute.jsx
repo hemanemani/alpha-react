@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children, allowedAccess, selectedPage }) => {
 
   const { accessLevel,allowedPages,isLoading } = useAuth();
   const isAuthenticated = localStorage.getItem("authToken");
-  if (isLoading || accessLevel === null) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -14,24 +14,18 @@ const ProtectedRoute = ({ children, allowedAccess, selectedPage }) => {
     return <Navigate to="/login" />;
   }
 
-  if (accessLevel === "full") {
-    return children;
-  }
-
 
   if (!allowedAccess.includes(accessLevel)) {
+    return <Navigate to="/unauthorized" />;
+  }
+
+  if (accessLevel === "limited" && !allowedPages.includes(selectedPage)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-
-  // If access level is "limited" but user has "view" permission, allow access
-  if (accessLevel === "limited" && allowedAccess.includes("view") && allowedPages.includes(selectedPage)) {
-    return children;
-  }
-
+  
+  // If authenticated, render the children
   return children;
-
-
 };
 
 export default ProtectedRoute;

@@ -299,6 +299,7 @@ const TopBar = ({ handleDrawerToggle,user,drawerWidth }) => {
               boxShadow:"none",
               borderRadius:"5px",
               border:"1px solid #d9d9d9",
+              marginTop:'5px',
             },
           }}
         >

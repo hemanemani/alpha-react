@@ -1,9 +1,10 @@
-import { Button, Grid, Typography,Box,Stack,Chip, LinearProgress, IconButton } from "@mui/material";
+import { Button, Grid, Typography,Box,Stack,Chip, LinearProgress, IconButton, Dialog, DialogActions, DialogTitle, DialogContent } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/axios";
 import DomesticUploadData from "./DomesticUploadData";
 import { FolderOpen, IosShare, UploadFile } from "@mui/icons-material";
 import { Close } from "@mui/icons-material";
+
 
 const BulkUploadDomestic = () => {
     const [uploading, setUploading] = useState(false);
@@ -13,7 +14,15 @@ const BulkUploadDomestic = () => {
     const [errorMessages,setErrorMessages] = useState([]);
     const [progress, setProgress] = useState(0);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
+    const handleOpen = () => {
+      setModalOpen(true);
+    };
+    const handleClose = () => {
+      setModalOpen(false);
+    };
+    
 
     const fetchInquiryData = async () => {
         const token = localStorage.getItem("authToken");
@@ -164,10 +173,39 @@ const BulkUploadDomestic = () => {
             size="small"
             variant="outlined"
             sx={{ bgcolor: "transparent", color: "#000", borderRadius: "8px", fontSize:"13px",textTransform:"capitalize",border:"1px solid #d9d9d9",padding:"5px 12px", display:"block", marginLeft:"auto" }}
-            onClick={handleDownload}
+            onClick={handleOpen} 
           >
             <IosShare sx={{fontSize:"13px",marginRight:"5px"}} />Export
           </Button>
+          {/* Modal/Dialog */}
+          <Dialog 
+          open={modalOpen} 
+          onClose={handleClose} 
+          PaperProps={{
+              sx: { width: "600px", height: "200px",borderRadius:"10px",padding:"5px 10px" }
+            }}>
+              <Grid sx={{display:"flex",alignItems:"center",justifyContent:"space-between"}} >
+                <DialogTitle sx={{fontSize:"23px",fontWeight:"600"}}>Export Bulk Upload Template File</DialogTitle>
+                <div style={{background:"#ffe6e2",padding:"6px",height:"30px",borderRadius:"5px"}}>
+                  <Close sx={{cursor:"pointer",background:"#fc573b",color:"#fff",fontSize:"16px",borderRadius:"50%",padding:"2px"}} onClick={handleClose} />
+                </div>
+              </Grid>
+           
+                      
+            <DialogContent>
+                <Grid container direction="row" alignItems="center">
+                  <FolderOpen fontSize="medium" sx={{ marginRight: "10px" }} />
+                    <Typography variant="body2" sx={{fontSize:"15px",fontWeight:"500"}}>
+                      Bulk Upload Template File.xlsx
+                    </Typography>
+                  </Grid>
+            </DialogContent>
+            <DialogActions sx={{justifyContent:"center"}}>
+              <Button onClick={handleDownload} sx={{background:"#000",color:"#fff",fontSize:"13px",textTransform:"capitalize"}}>
+                Download
+              </Button>
+            </DialogActions>
+          </Dialog>
         <form>
               <Grid style={{margin:"30px 15px"}}>
                 <Grid 
@@ -244,6 +282,7 @@ const BulkUploadDomestic = () => {
                             <Typography variant="body2" fontWeight="500">
                               {selectedFile.name}
                             </Typography>
+
                               <Grid container direction="column" alignItems="center">
                               <Typography variant="caption" color="gray" sx={{display:"block",marginRight:"auto"}}>
                                 ({(selectedFile.size / 1024).toFixed(2)} KB)

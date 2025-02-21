@@ -3,6 +3,7 @@ import { Box, Grid, Typography, TextField, Button, IconButton, InputAdornment, A
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { getCsrfToken, authLogin } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../services/AuthContext";
 
 const LoginPage = () => {
   const [user_name,setUserName] = useState('');
@@ -16,6 +17,8 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false); // State for managing loading status
   const [submitting, setSubmitting] = useState(false); // State for managing submission status
   const navigate = useNavigate();
+  const { setAccessLevel, setAllowedPages } = useAuth(); // ✅ Get Auth Context methods
+
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -50,30 +53,15 @@ const LoginPage = () => {
       await getCsrfToken();
       const credentials = { user_name, password };
 
-      // Log credentials to console (for debugging purposes)
-      console.log("Username:", user_name);
-      console.log("Password:", password);
+      await authLogin(credentials, navigate, setAccessLevel, setAllowedPages); // ✅ Pass these
 
-      const response = await authLogin(credentials);
-
-      if (response.access_token) {
-        localStorage.setItem("authToken", response.access_token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        setSuccess(true);
-
-        // Delay for user to see success message, then redirect
-        setTimeout(() => {
-          navigate("/");
-        }, 1500);
-      } else {
-        throw new Error("Invalid response structure");
+      } catch (error) {
+        setError("Login failed. Please check your credentials.");
+      } finally {
+        setSubmitting(false);
       }
-    } catch (error) {
-      setError("Login failed. Please check your credentials.");
-    } finally {
-      setSubmitting(false); // Stop submitting after the request finishes
-    }
-  };
+
+    };
 
   const handleForgotPasswordClick = () => {
     setOpenDialog(true); // Show the dialog when the user clicks "Forgot Password?"
@@ -170,13 +158,15 @@ const LoginPage = () => {
         </Box>
       </Grid>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Dialog open={openDialog} onClose={handleCloseDialog} PaperProps={{
+              sx: { width: "500px", height: "180px",borderRadius:"10px",padding:"5px 10px" }
+            }}>
         <DialogContent>
-          <Typography variant="body1" fontWeight="bold">
+          <Typography variant="body1" sx={{fontSize:"23px",fontWeight:"600"}}>
             Forgot Password?
           </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: "0.875rem" }}>
-            Kindly contact <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Master Admin</span> for Password Reset.
+          <Typography variant="body2" sx={{ fontSize: "13px",fontWeight: "500",color:"#8d857f",marginTop:"15px" }}>
+            Kindly contact <span style={{ textDecoration: "underline" }}>Master Admin</span> for Password Reset.
           </Typography>
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>
@@ -184,7 +174,7 @@ const LoginPage = () => {
             onClick={handleCloseDialog} 
             color="primary" 
             size="small" 
-            style={{ background: "#000", color: "white" }} // White text and black background
+            style={{ background: "#000", color: "white",padding:"5px 35px" }} // White text and black background
             sx={{ marginTop: 2 }}
           >
             OK

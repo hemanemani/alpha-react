@@ -251,7 +251,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle,user,drawerWidth,isHoverEnable
         </List>
       </Box>
       { hovered ?
-      <Box p={2} sx={{ position: "fixed", bottom: 0, width: "100%" }}>
+      <Box p={2} sx={{ position: "absolute", bottom: 0, width: "100%" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
           <Person />
           <ListItemText primary={user.name} secondary= {`@${user.user_name}`} />

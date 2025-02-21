@@ -9,7 +9,7 @@ import DomesticOffers from "./pages/OffersPage/DomesticOffers";
 import InternationalOffers from "./pages/OffersPage/InternationalOffers";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import LoginPage from "./pages/Login/LoginPage";
-import ProtectedRoute from "./services/ProtectedRoute";
+import ProtectedRoute from "./services/--ProtectedRoute";
 import DomesticCancellations from "./pages/CancelledPage/DomesticCancellations";
 import InternationalCancellations from "./pages/CancelledPage/InternationalCancellations";
 import InquiryForm from "./pages/InquiriesPage/InquiryForm";
@@ -46,7 +46,7 @@ function App() {
                   </ProtectedRoute>
               } />
               <Route path="inquiries/domestic" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="inquiries/domestic">
+                  <ProtectedRoute allowedAccess={["full","view"]} selectedPage="inquiries/domestic">
                     <DomesticInquiries />
                   </ProtectedRoute>
               } />
@@ -61,12 +61,12 @@ function App() {
                   </ProtectedRoute>
               } />
               <Route path="inquiries/domestic/upload" element={
-                  <ProtectedRoute allowedAccess={["full"]} selectedPage="inquiries/domestic/upload">
+                  <ProtectedRoute allowedAccess={["full","limited"]} selectedPage="inquiries/domestic/modify">
                     <BulkUploadDomestic />
                   </ProtectedRoute>
               } />
               <Route path="inquiries/international" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="inquiries/international">
+                  <ProtectedRoute allowedAccess={["full","view"]} selectedPage="inquiries/international">
                     <InternationalInquiries />
                   </ProtectedRoute>
               } />
@@ -81,17 +81,17 @@ function App() {
                   </ProtectedRoute>
               } />
               <Route path="inquiries/international/upload" element={
-                  <ProtectedRoute allowedAccess={["full"]} selectedPage="inquiries/international/upload">
+                  <ProtectedRoute allowedAccess={["full","limited"]} selectedPage="inquiries/international/modify">
                     <BulkUploadInternational />
                   </ProtectedRoute>
               } />
               <Route path="offers/domestic" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="offers/domestic">
+                  <ProtectedRoute allowedAccess={["full","view"]} selectedPage="offers/domestic">
                     <DomesticOffers />
                   </ProtectedRoute>
               } />
               <Route path="offers/international" element={
-                  <ProtectedRoute allowedAccess={["full","view","limited"]} selectedPage="offers/international">
+                  <ProtectedRoute allowedAccess={["full","view"]} selectedPage="offers/international">
                     <InternationalOffers />
                   </ProtectedRoute>
               } />

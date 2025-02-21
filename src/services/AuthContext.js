@@ -16,10 +16,9 @@ export const AuthProvider = ({ children }) => {
 
     if (!token) {
         console.log("User is not authenticated.");
-        setIsLoading(false); 
-        navigate("/login");
+        setTimeout(() => setIsLoading(false), 500);
         return;
-    }
+      }
 
     axiosInstance.get("/user-access", { 
       withCredentials: true,
@@ -31,16 +30,21 @@ export const AuthProvider = ({ children }) => {
       .then(response => {
         setAccessLevel(response.data.access_level);
         setAllowedPages(response.data.allowed_pages || []);
-      }
-      )
-      
-      .catch(() => setAccessLevel("view"))
-      .finally(() => setIsLoading(false)); // Always update loading state
+      })
+      .catch(() => {
+        setAccessLevel("view"); // Default to "view" on error
+        localStorage.removeItem("authToken"); // Clear token on failure
+        navigate("/login");
+      })
+      .finally(() => {
+        setTimeout(() => setIsLoading(false), 500);
+      });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ accessLevel,allowedPages,isLoading }}>
-      {children}
+    <AuthContext.Provider value={{ accessLevel, allowedPages, setAccessLevel, setAllowedPages, isLoading }}>
+      {!isLoading ? children : <div>Loading...</div>} 
+            {/* {children} */}
     </AuthContext.Provider>
   );
 };
